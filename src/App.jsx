@@ -6,6 +6,8 @@ import Sidebar from "./Component/Sidebar";
 import Dashboard from "./Component/Dashboard";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Analytics from "./Component/Analytics";
+import DailyReports from "./Component/DailyReports";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -24,6 +26,19 @@ function App() {
             path="/dashboard"
             element={
               isLoggedIn ? <Dashboard /> : <Navigate to="/" replace />
+            }
+          />
+
+          <Route
+            path="/analytics"
+            element={
+              isLoggedIn ? <Analytics /> : <Navigate to="/" replace />
+            }
+          />
+          <Route
+            path="/reports"
+            element={
+              isLoggedIn ? <DailyReports /> : <Navigate to="/" replace />
             }
           />
         </Routes>

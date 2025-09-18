@@ -23,10 +23,10 @@ const Sidebar = () => {
       id: "cars", label: "Rides", icon: Car, link: "#",
     },
     { 
-      id: "bar", label: "Reports", icon: BarChart2, link: "#",
+      id: "bar", label: "Reports", icon: BarChart2, link: "/reports",
     },
     { 
-      id: "pie", label: "Analytics", icon: PieChart, link: "#",
+      id: "pie", label: "Analytics", icon: PieChart, link: "/analytics",
     },
     { 
       id: "help", label: "Help", icon: HelpCircle, link: "#",
