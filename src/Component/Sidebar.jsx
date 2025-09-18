@@ -13,14 +13,14 @@ const Sidebar = () => {
   const [active, setActive] = useState("dashboard"); // default active
 
   const menuItems = [
-    {
+    { 
       id: "dashboard", label: "Dashboard", icon: LayoutGrid, link: "/dashboard",
     },
     { 
-      id: "users", label: "User", icon: Users, link: "#",
+      id: "users", label: "User", icon: Users, link: "/users",
     },
     { 
-      id: "cars", label: "Rides", icon: Car, link: "#",
+      id: "cars", label: "Rides", icon: Car, link: "/ride",
     },
     { 
       id: "bar", label: "Reports", icon: BarChart2, link: "/reports",
