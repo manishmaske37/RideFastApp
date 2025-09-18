@@ -8,6 +8,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Analytics from "./Component/Analytics";
 import DailyReports from "./Component/DailyReports";
+import UserManagement from "./Component/UserManagement";
+import RideManagement from "./Component/RideManagement";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -24,11 +26,20 @@ function App() {
           {/* Protect dashboard route */}
           <Route
             path="/dashboard"
-            element={
+            element={ 
               isLoggedIn ? <Dashboard /> : <Navigate to="/" replace />
             }
           />
-
+          <Route 
+           path="/users"
+           element={
+            isLoggedIn ? <UserManagement /> : <Navigate to="/" replace />
+           }/>
+          <Route
+          path="/ride"
+          element = {
+            isLoggedIn ? <RideManagement /> : <Navigate to="/" replace />
+          } />
           <Route
             path="/analytics"
             element={
