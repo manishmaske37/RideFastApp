@@ -1,6 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
-const Login = () => {
+const Login = ({ onLogin }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+
+    if (email === "test@admin.com" && password === "admin123") {
+      onLogin(); // ✅ update login state in App.jsx
+      toast.success("Login successful!");
+      navigate("/dashboard"); // ✅ go to dashboard
+    } else {
+      toast.error("Invalid email or password!");
+    }
+  };
+
   return (
     <div className="flex min-h-screen">
       {/* Left Section */}
@@ -18,51 +37,65 @@ const Login = () => {
           <h2 className="text-3xl font-bold mb-2">Welcome Back!</h2>
           <p className="text-gray-500 mb-6">Please sign in to continue.</p>
 
-          {/* Email */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email Address
-            </label>
-            <div className="flex items-center border rounded-lg px-3 py-2">
-              <i className="bi bi-envelope text-gray-400 mr-2"></i>
-              <input
-                type="email"
-                placeholder="Email Address"
-                className="w-full outline-none"
-              />
+          <form onSubmit={handleLogin}>
+            {/* Email */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email Address
+              </label>
+              <div className="flex items-center border rounded-lg px-3 py-2">
+                <i className="bi bi-envelope text-gray-400 mr-2"></i>
+                <input
+                  type="email"
+                  placeholder="Email Address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full outline-none"
+                  required
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Password */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Password
-            </label>
-            <div className="flex items-center border rounded-lg px-3 py-2">
-              <i className="bi bi-lock text-gray-400 mr-2"></i>
-              <input
-                type="password"
-                placeholder="Password"
-                className="w-full outline-none"
-              />
+            {/* Password */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Password
+              </label>
+              <div className="flex items-center border rounded-lg px-3 py-2">
+                <i className="bi bi-lock text-gray-400 mr-2"></i>
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full outline-none"
+                  required
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Remember + Forgot */}
-          <div className="flex items-center justify-between mb-6">
-            <label className="flex items-center text-sm text-gray-600">
-              <input type="checkbox" className="mr-2" />
-              Remember Me
-            </label>
-            <a href="/" className="text-sm text-teal-600 hover:underline">
-              Forgot Password?
-            </a>
-          </div>
+            {/* Remember + Forgot */}
+            <div className="flex items-center justify-between mb-6">
+              <label className="flex items-center text-sm text-gray-600">
+                <input type="checkbox" className="mr-2" />
+                Remember Me
+              </label>
+              <a href="/" className="text-sm text-teal-600 hover:underline">
+                Forgot Password?
+              </a>
+            </div>
 
-          {/* Button */}
-          <button className="w-full bg-teal-500 text-white py-2 rounded-lg font-semibold hover:bg-teal-600 transition cursor-pointer">
-            Sign In
-          </button>
+            {/* Error Message */}
+            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+
+            {/* Button */}
+            <button
+              type="submit"
+              className="w-full bg-teal-500 text-white py-2 rounded-lg font-semibold hover:bg-teal-600 transition cursor-pointer"
+            >
+              Sign In
+            </button>
+          </form>
         </div>
       </div>
     </div>
