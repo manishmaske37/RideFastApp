@@ -190,9 +190,9 @@ const RideManagement = () => {
       {/* Ride List */}
       <div className="border rounded p-4 bg-white divide-y divide-gray-200">
         {filteredRides.map((ride) => (
-          <div key={ride.id}>
+          <div key={ride.id} className="py-3">
             <div className="flex justify-between items-center">
-              <h2>Ride #{ride.id}</h2>
+              <strong>Ride #{ride.id}</strong>
               <span
                 className={`px-2 py-1 rounded text-sm font-semibold ${getStatusColor(
                   ride.status
@@ -202,7 +202,7 @@ const RideManagement = () => {
               </span>
             </div>
 
-            <div className="flex justify-between">
+            <div className="flex justify-between mt-2">
               <div>
                 <p>
                   <span className="font-semibold">From:</span>{" "}
@@ -219,14 +219,14 @@ const RideManagement = () => {
               </div>
             </div>
 
-            <p className="text-gray-600 ">
+            <p className="text-gray-600 mt-1">
               Customer: {ride.customerName} | Driver: {ride.driverName}
             </p>
           </div>
         ))}
 
         {/* Page */}
-        <div className="pt-3 text-gray-700">
+        <div className=" mt-3 pt-3 text-gray-700">
           Page 1 of {totalPages} ({filteredRides.length} total)
         </div>
       </div>
