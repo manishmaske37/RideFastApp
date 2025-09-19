@@ -1,96 +1,139 @@
-import React from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap-icons/font/bootstrap-icons.css";
+import React, { useState, useRef, useEffect } from "react";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+import {
+  CarFront,
+  CheckCircle,
+  XCircle,
+  IndianRupee,
+  BarChart2,
+  Users,
+  UserPlus,
+} from "lucide-react";
 
-const ReportCard = ({ icon, label, value, color, fullWidth }) => {
-  const borderColor = fullWidth ? "#004d4d" : "#008080";
-
-  return (
-    <div className={fullWidth ? "col-12 mb-3" : "col-md-4 col-sm-6 mb-3"}>
-      <div
-        className="card h-100"
-        style={{
-          border: `2px solid ${borderColor}`,
-          borderRadius: "12px",
-        }}
-      >
-        <div className="card-body d-flex justify-content-between align-items-center">
-          <div className="d-flex align-items-center">
-            <i className={`bi ${icon} fs-4 me-2`} style={{ color }}></i>
-            <span className="fw-semibold">{label}</span>
-          </div>
-          <span className="fw-bold" style={{ color }}>
-            {value}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const Header = () => {
-  return (
+const ReportCard = ({ Icon, label, value, color }) => (
+  <div className="w-full">
     <div
-      className="card mb-4 shadow-sm"
-      style={{ border: "2px solid #008080", borderRadius: "12px" }}
+      className="flex items-center justify-between px-4 py-3 bg-white border rounded-lg shadow-sm"
+      style={{ borderColor: "#008080" }}
     >
-      <div className="card-body d-flex justify-content-between align-items-center">
-        <div>
-          <h5 className="fw-bold">Pune</h5>
-          <p className="text-muted small mb-0">
-            Daily Operations Report <br /> 2025-09-17T00:00:00.000Z
-          </p>
-        </div>
+      <div className="flex items-center gap-2">
+        <Icon className="w-5 h-5" style={{ color }} />
+        <span className="text-gray-700 font-medium">{label}</span>
       </div>
+      <span className="font-bold" style={{ color }}>
+        {value}
+      </span>
     </div>
-  );
-};
+  </div>
+);
+
+const HeaderCard = ({ date }) => (
+  <div className="w-full mb-6">
+    <div className="bg-white border-2 border-teal-700 rounded-xl shadow-sm px-8 py-5">
+      <h2 className="text-xl font-semibold">Pune</h2>
+      <p className="text-sm text-gray-500">
+        Daily Operations Report
+        <br />
+        {date.toLocaleDateString()}
+      </p>
+    </div>
+  </div>
+);
 
 export default function DailyReports() {
-  return (
-    <div
-      className="container-fluid py-4"
-      style={{
-        backgroundColor: "#d9f7f3",
-        minHeight: "100vh",
-        paddingLeft: "100px",   // ✅ no gap on left
-        paddingRight: "20px", // ✅ 20px gap on right
-      }}
-    >
-      <h3 className="fw-bold mt-4 mb-3">Daily Reports</h3>
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showCalendar, setShowCalendar] = useState(false);
+  const calendarRef = useRef();
 
-      {/* Date on right */}
-      <div className="d-flex justify-content-end mb-3">
-        <i className="bi bi-calendar3 me-2"></i>
-        <span className="fw-bold">18/9/2025</span>
+  // Close calendar when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (calendarRef.current && !calendarRef.current.contains(event.target)) {
+        setShowCalendar(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="min-h-screen px-6 md:px-24 py-8" style={{ background: "#d9f7f3" }}>
+      {/* Top bar */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <h1 className="text-3xl font-bold">Daily Reports</h1>
+
+        {/* Calendar input */}
+        <div className="relative" ref={calendarRef}>
+          <button
+            onClick={() => setShowCalendar(!showCalendar)}
+            className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm cursor-pointer"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-5 h-5 text-gray-700"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 7V3M16 7V3M3 11h18M5 19h14a2 2 0 002-2v-7H3v7a2 2 0 002 2z"
+              />
+            </svg>
+            <span className="text-gray-700 font-medium text-sm">
+              {selectedDate.toLocaleDateString()}
+            </span>
+          </button>
+
+          {showCalendar && (
+            <div className="absolute top-0 right-full mr-2 z-50">
+              <Calendar
+                onChange={(date) => {
+                  setSelectedDate(date);
+                  setShowCalendar(false); // close after selecting
+                }}
+                value={selectedDate}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Header */}
-      <Header />
+      <HeaderCard date={selectedDate} />
 
       {/* Ride Statistics */}
-      <h5 className="fw-bold mt-5 mb-3">Ride Statistics</h5>
-      <div className="row">
-        <ReportCard icon="bi-car-front" label="Total Rides" value="0" color="blue" />
-        <ReportCard icon="bi-check-circle" label="Completed" value="0" color="green" />
-        <ReportCard icon="bi-x-circle" label="Cancelled" value="0" color="red" />
-        <ReportCard icon="bi-currency-rupee" label="Total Revenue" value="₹0" color="purple" />
-        <ReportCard icon="bi-graph-up" label="Average Fare" value="₹0" color="orange" />
+      <h2 className="text-xl font-bold mb-6">Ride Statistics</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
+        <ReportCard Icon={CarFront} label="Total Rides" value="0" color="blue" />
+        <ReportCard Icon={CheckCircle} label="Completed" value="0" color="green" />
+        <ReportCard Icon={XCircle} label="Cancelled" value="0" color="red" />
+        <ReportCard Icon={IndianRupee} label="Total Revenue" value="₹0" color="purple" />
+        <ReportCard Icon={BarChart2} label="Average Fare" value="₹0" color="orange" />
       </div>
 
       {/* Drivers & Registrations */}
-      <h5 className="fw-bold mt-5 mb-3 d-flex justify-content-between">
-        <span>Drivers & Registrations</span>
-        <span>
+      <div className="flex flex-col md:flex-row justify-between mb-4 items-start md:items-center gap-4">
+        <h2 className="text-xl font-bold">Drivers & Registrations</h2>
+        <label className="flex items-center gap-2 text-lg font-bold" style={{marginRight:"55%"}}>
           Peak Hours
-          <input className="form-check-input ms-3" type="checkbox" />
-        </span>
-      </h5>
+          <input type="checkbox" className="w-4 h-4 accent-teal-600" />
+        </label>
+      </div>
 
-      <div className="row">
-       <span> <ReportCard icon="bi-car-front" label="Active Drivers" value="0" color="blue" /></span>
-       <span> <ReportCard icon="bi-person-plus" label="New Customers" value="3" color="green" /></span>
-       <span> <ReportCard icon="bi-people" label="New Drivers" value="1" color="orange" /></span>
+      <div className="flex flex-col gap-6">
+        <div className="self-start w-full max-w-sm">
+          <ReportCard Icon={CarFront} label="Active Drivers" value="0" color="blue" />
+        </div>
+        <div className="self-start w-full max-w-sm">
+          <ReportCard Icon={UserPlus} label="New Customers" value="3" color="green" />
+        </div>
+        <div className="self-start w-full max-w-sm">
+          <ReportCard Icon={Users} label="New Drivers" value="1" color="orange" />
+        </div>
       </div>
     </div>
   );

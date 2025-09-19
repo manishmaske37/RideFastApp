@@ -5,18 +5,39 @@ import { toast } from "react-toastify";
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    if (email === "test@admin.com" && password === "admin123") {
-      onLogin(); // ✅ update login state in App.jsx
-      toast.success("Login successful!");
-      navigate("/dashboard"); // ✅ go to dashboard
-    } else {
-      toast.error("Invalid email or password!");
+    try {
+      const response = await fetch("http://api.zenevo.in/support-service/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.token) {
+        // ✅ Save token in parent (App.jsx)
+        onLogin(data.token);
+
+        toast.success("Login successful!");
+        localStorage.setItem("fullName", data.agent.fullName);
+        navigate("/dashboard");
+      } else {
+        toast.error(data.message || "Invalid email or password!");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("Something went wrong. Please try again!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -85,15 +106,13 @@ const Login = ({ onLogin }) => {
               </a>
             </div>
 
-            {/* Error Message */}
-            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-
             {/* Button */}
             <button
               type="submit"
-              className="w-full bg-teal-500 text-white py-2 rounded-lg font-semibold hover:bg-teal-600 transition cursor-pointer"
+              disabled={loading}
+              className="w-full bg-teal-500 text-white py-2 rounded-lg font-semibold hover:bg-teal-600 transition cursor-pointer disabled:opacity-50"
             >
-              Sign In
+              {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
         </div>
