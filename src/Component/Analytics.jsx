@@ -1,136 +1,127 @@
+import React from "react";
 import { CalendarDays } from "lucide-react";
-import "bootstrap/dist/css/bootstrap.min.css";
 
+// KPI Card
+function KpiCard({ title, value, icon, color }) {
+  return (
+    <div className="w-full sm:w-1/2 lg:w-1/4 p-2">
+      <div className="h-full bg-white shadow-md rounded-xl border-2 border-teal-700 p-4">
+        <div
+          className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${
+            color === "primary"
+              ? "bg-blue-100 text-blue-600"
+              : color === "warning"
+              ? "bg-yellow-100 text-yellow-600"
+              : color === "success"
+              ? "bg-green-100 text-green-600"
+              : "bg-gray-200 text-gray-600"
+          }`}
+        >
+          <span className="text-lg">{icon}</span>
+        </div>
+        <h4 className="font-bold text-xl">{value}</h4>
+        <p className="text-gray-500 text-sm">{title}</p>
+      </div>
+    </div>
+  );
+}
+
+// Legend Component
+function Legend({ color, text }) {
+  return (
+    <div className="flex items-center mb-2">
+      <div
+        className={`w-3 h-3 rounded-full ${
+          color === "primary"
+            ? "bg-blue-600"
+            : color === "warning"
+            ? "bg-yellow-600"
+            : color === "success"
+            ? "bg-green-600"
+            : "bg-gray-600"
+        }`}
+      ></div>
+      <span className="ml-2 text-sm text-gray-700">{text}</span>
+    </div>
+  );
+}
+
+// Main Component
 export default function Analytics() {
   return (
     <div
-      className="container-fluid py-4"
-      style={{
-        backgroundColor: "#E6F7F6",
-        minHeight: "100vh",
-        paddingLeft: "100px", // ✅ space on left
-        paddingRight: "25px", // ✅ space on right
-      }}
+      className="min-h-screen py-6"
+      style={{ backgroundColor: "#E6F7F6", paddingLeft: "100px", paddingRight: "25px" }}
     >
       {/* HEADER */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1 className="h3 fw-bold">Support Analytics</h1>
-        <button className="btn btn-light border d-flex align-items-center gap-2">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Support Analytics</h1>
+        <button className="flex items-center gap-2 border rounded-md bg-white px-3 py-2 shadow-sm hover:bg-gray-100">
           <CalendarDays size={16} />
-          <span className="fw-semibold">Last 30 Days</span>
+          <span className="font-medium text-sm">Last 30 Days</span>
         </button>
       </div>
 
       {/* KPI GRID */}
-      <div className="row g-4 mb-4">
-        <div className="col-12 col-sm-6 col-lg-3">
-          <KpiCard
-            title="Total Tickets (30d)"
-            value="1,428"
-            icon="🎫"
-            color="primary"
-          />
-        </div>
-        <div className="col-12 col-sm-6 col-lg-3">
-          <KpiCard
-            title="Avg. Resolution Time"
-            value="3.2 hours"
-            icon="⏱️"
-            color="warning"
-          />
-        </div>
-        <div className="col-12 col-sm-6 col-lg-3">
-          <KpiCard
-            title="First Response Time"
-            value="15 min"
-            icon="📩"
-            color="success"
-          />
-        </div>
-        <div className="col-12 col-sm-6 col-lg-3">
-          <KpiCard
-            title="Satisfaction (CSAT)"
-            value="92.5%"
-            icon="😊"
-            color="secondary"
-          />
-        </div>
+      <div className="flex flex-wrap -m-2 mb-6">
+        <KpiCard
+          title="Total Tickets (30d)"
+          value="1,428"
+          icon="🎫"
+          color="primary"
+        />
+        <KpiCard
+          title="Avg. Resolution Time"
+          value="3.2 hours"
+          icon="⏱️"
+          color="warning"
+        />
+        <KpiCard
+          title="First Response Time"
+          value="15 min"
+          icon="📩"
+          color="success"
+        />
+        <KpiCard
+          title="Satisfaction (CSAT)"
+          value="92.5%"
+          icon="😊"
+          color="secondary"
+        />
       </div>
 
       {/* MAIN CHARTS */}
-      <div className="row g-4">
+      <div className="flex flex-wrap -m-2">
         {/* Ticket Trends */}
-        <div className="col-lg-8">
-          <div
-            className="card shadow-sm h-100"
-            style={{ border: "2px solid teal" }}
-          >
-            <div className="card-body">
-              <h5 className="card-title">Ticket Volume vs. Resolution</h5>
-              <div className="d-flex align-items-center justify-content-center bg-light rounded p-5 text-muted small" style={{height:'80%'}}>
-                // TODO: Integrate a line/bar chart here (recharts)
-              </div>
+        <div className="w-full lg:w-2/3 p-2">
+          <div className="h-full bg-white shadow-md rounded-xl border-2 border-teal-700 p-4">
+            <h5 className="font-semibold mb-4">Ticket Volume vs. Resolution</h5>
+            <div className="flex items-center justify-center bg-gray-100 rounded-md p-6 text-gray-400 text-sm h-64">
+              {/* TODO: Integrate a line/bar chart here (recharts) */}
+              Chart Placeholder
             </div>
           </div>
         </div>
 
         {/* Ticket Category */}
-        <div className="col-lg-4">
-          <div
-            className="card shadow-sm h-100"
-            style={{ border: "2px solid teal" }}
-          >
-            <div className="card-body">
-              <h5 className="card-title">Tickets by Category</h5>
-              <div
-                className="mx-auto my-3 rounded-circle bg-light d-flex align-items-center justify-content-center text-muted small"
-                style={{ width: "180px", height: "180px" }}
-              >
-                // Donut Chart (recharts)
-              </div>
+        <div className="w-full lg:w-1/3 p-2">
+          <div className="h-full bg-white shadow-md rounded-xl border-2 border-teal-700 p-4">
+            <h5 className="font-semibold mb-4">Tickets by Category</h5>
 
-              <div className="mt-3">
-                <Legend color="primary" text="Payment & Fare (45%)" />
-                <Legend color="warning" text="Driver Issues (25%)" />
-                <Legend color="success" text="App Glitches (18%)" />
-                <Legend color="secondary" text="Other (12%)" />
-              </div>
+            <div className="w-44 h-44 mx-auto my-3 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
+              {/* Donut Chart (recharts) */}
+              Donut Placeholder
+            </div>
+
+            <div className="mt-4">
+              <Legend color="primary" text="Payment & Fare (45%)" />
+              <Legend color="warning" text="Driver Issues (25%)" />
+              <Legend color="success" text="App Glitches (18%)" />
+              <Legend color="secondary" text="Other (12%)" />
             </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function KpiCard({ title, value, icon, color }) {
-  return (
-    <div
-      className="card shadow-sm h-100"
-      style={{ border: "2px solid teal" }}
-    >
-      <div className="card-body">
-        <div
-          className={`rounded-circle bg-${color}-subtle text-${color} d-flex align-items-center justify-content-center mb-3`}
-          style={{ width: "48px", height: "48px" }}
-        >
-          <span className="fs-5">{icon}</span>
-        </div>
-        <h4 className="fw-bold">{value}</h4>
-        <p className="text-muted small mb-0">{title}</p>
-      </div>
-    </div>
-  );
-}
-
-function Legend({ color, text }) {
-  return (
-    <div className="d-flex align-items-center mb-2">
-      <div
-        className={`rounded-circle bg-${color}`}
-        style={{ width: "12px", height: "12px" }}
-      ></div>
-      <span className="ms-2 small">{text}</span>
     </div>
   );
 }

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FaCar, FaUser } from "react-icons/fa";
 import { MdOutlineSupportAgent } from "react-icons/md";
 import { RiMoneyRupeeCircleLine } from "react-icons/ri";
-import crossCircle from "../assets/cross-circle.png";
+import { useEffect } from "react";
 
 // JSON data
 const dashboardData = {
@@ -50,12 +50,35 @@ const dashboardData = {
     tabs: ["Conversation", "Ride Details", "User Info"],
   },
 };
-
-import { Megaphone } from "lucide-react";
+import AdminAlert from "./Alerts/AdminAlert";
+import IncomingToast from "./Alerts/IncomingToast";
+import IncomingCallModal from "./Alerts/IncomingCallModal";
+import ChatPanel from "./ChatPanel";
+import SkeletonBox from "./SkeletonBox";
 
 const Dashboard = () => {
   const [isOnline, setIsOnline] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
+
+  const [showToast, setShowToast] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // simulate API fetch
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000); // 2 seconds delay
+  }, []);
+
+  const simulateCall = () => {
+    setShowToast(true);
+    setTimeout(() => {
+      setShowToast(false);
+      setShowModal(true);
+    }, 1500); // 1.5 sec delay before popup
+  };
 
   return (
     <div className={`p-6 min-h-screen ${isOnline ? "bg-teal-100" : ""}`}>
@@ -70,40 +93,22 @@ const Dashboard = () => {
             📢 Simulate Admin Alert
           </button>
 
-          {showAlert && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-              <div className="bg-white w-full !rounded-lg shadow-lg overflow-hidden mx-3">
-                {/* Header */}
-                <div className="bg-teal-500 text-white flex justify-center items-center py-4">
-                  <Megaphone className="w-6 h-6 mr-2" />
-                </div>
+          {/* Visitor Alert Component */}
+          <AdminAlert show={showAlert} onClose={() => setShowAlert(false)} />
 
-                {/* Body */}
-                <div className="p-6 text-center">
-                  <h2 className="font-bold text-lg">System Update</h2>
-                  <p>
-                    A new fare policy for peak hours will be effective from
-                    Monday. Please review document <strong>#POL-005</strong> in
-                    the knowledge base.
-                  </p>
-                </div>
-
-                {/* Footer / Button */}
-                <div className="p-4">
-                  <button
-                    onClick={() => setShowAlert(false)}
-                    className="bg-teal-500 text-white font-semibold w-full py-2 !rounded-md hover:bg-teal-600 cursor-pointer"
-                  >
-                    GOT IT
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <button className="bg-indigo-500 text-white px-4 py-2 !rounded-lg shadow hover:bg-indigo-600">
+          <button
+            onClick={simulateCall}
+            className="bg-indigo-500 text-white px-4 py-2 !rounded-lg shadow hover:bg-indigo-600"
+          >
             📞 Simulate Incoming Call
           </button>
+
+          {/* Components */}
+          <IncomingToast show={showToast} />
+          <IncomingCallModal
+            show={showModal}
+            onClose={() => setShowModal(false)}
+          />
 
           {/* ✅ Toggle Online/Offline */}
           <div
@@ -138,18 +143,31 @@ const Dashboard = () => {
 
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4 mb-6">
-        {dashboardData.stats.map((stat) => (
-          <div
-            key={stat.id}
-            className="bg-white !rounded-lg p-4 shadow flex items-center gap-3 border-2 border-green-300"
-          >
-            {stat.icon}
-            <div>
-              <p className="font-bold text-xl">{stat.value}</p>
-              <p className="text-gray-600">{stat.title}</p>
-            </div>
-          </div>
-        ))}
+        {loading
+          ? [...Array(4)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-lg p-4 shadow flex items-center gap-3 border-2 border-green-300"
+              >
+                <SkeletonBox className="w-8 h-8" />
+                <div className="flex-1">
+                  <SkeletonBox className="w-16 h-4 mb-2" />
+                  <SkeletonBox className="w-24 h-3" />
+                </div>
+              </div>
+            ))
+          : dashboardData.stats.map((stat) => (
+              <div
+                key={stat.id}
+                className="bg-white rounded-lg p-4 shadow flex items-center gap-3 border-2 border-green-300"
+              >
+                {stat.icon}
+                <div>
+                  <p className="font-bold text-xl">{stat.value}</p>
+                  <p className="text-gray-600">{stat.title}</p>
+                </div>
+              </div>
+            ))}
       </div>
 
       <div className="grid grid-cols-3 gap-6">
@@ -170,168 +188,39 @@ const Dashboard = () => {
           {/* Current */}
           <div className="bg-white !rounded-lg p-4 shadow mb-4 border-2 border-green-300">
             <h3 className="text-teal-600 font-bold">Currently Resolving</h3>
+            <hr className="my-2 text-gray-300"/>
             <p className="mt-2 font-medium">
               {dashboardData.workload.current.name}
             </p>
             <p className="text-gray-600 text-sm">
               {dashboardData.workload.current.issue}
             </p>
-            <span className="text-blue-600 text-sm font-semibold">
+
+            <div className="mt-2">
+            <span className="text-blue-600 text-sm font-semibold bg-blue-200 p-1 px-2 rounded-4xl">
               {dashboardData.workload.current.status}
             </span>
+            </div>
           </div>
 
           {/* Next */}
           <div className="bg-white !rounded-lg p-4 shadow border-2 border-green-300">
             <h3 className="text-gray-700 font-bold">Next in Queue</h3>
+            <hr className="my-2 text-gray-300"/>
             <p className="mt-2 font-medium">
               {dashboardData.workload.next.name}
             </p>
             <p className="text-gray-600 text-sm">
               {dashboardData.workload.next.issue}
             </p>
-            <span className="text-orange-500 text-sm font-semibold">
+            <div className="mt-2">
+            <span className="text-orange-500 text-sm font-semibold bg-orange-200 p-1 px-2 rounded-4xl">
               {dashboardData.workload.next.status}
             </span>
-          </div>
-        </div>
-
-        {/* Chat Panel */}
-        <div className="col-span-2 border-2 border-green-300 !rounded-lg">
-          <div className="bg-white !rounded-lg shadow flex flex-col h-full">
-            {/* Ticket Header */}
-            <div className="flex justify-between items-center border-b p-4">
-              <div>
-                <h3 className="font-bold">{dashboardData.ticket.title}</h3>
-                <p className="text-gray-600 text-sm">
-                  Ticket #{dashboardData.ticket.ticketId}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <div className="flex gap-2">
-                  <div className="relative group">
-                    <button className="p-2 bg-green-100 !rounded-full cursor-pointer">
-                      📞
-                    </button>
-                    <span
-                      className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 
-                     px-2 py-1 text-xs text-white bg-gray-500 !rounded 
-                     whitespace-nowrap
-                     opacity-0 group-hover:opacity-100 transition"
-                    >
-                      Start Call (WebRTC)
-                    </span>
-                  </div>
-
-                  <div className="relative group">
-                    <button className="p-2 bg-blue-100 !rounded-full cursor-pointer">
-                      👤
-                    </button>
-                    <span
-                      className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 
-                     px-2 py-1 text-xs text-white bg-gray-500 !rounded 
-                     whitespace-nowrap
-                     opacity-0 group-hover:opacity-100 transition"
-                    >
-                      Assign Agent
-                    </span>
-                  </div>
-
-                  <div className="relative group">
-                    <button className="p-2 bg-yellow-100 !rounded-full cursor-pointer">
-                      ⬆️
-                    </button>
-                    <span
-                      className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 
-                     px-2 py-1 text-xs text-white bg-gray-500 !rounded 
-                     whitespace-nowrap
-                     opacity-0 group-hover:opacity-100 transition"
-                    >
-                      Escalate Ticket
-                    </span>
-                  </div>
-
-                  <div className="relative group">
-                    <button className="p-2 bg-purple-100 !rounded-full cursor-pointer">
-                      ↔️
-                    </button>
-                    <span
-                      className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 
-                     px-2 py-1 text-xs text-white bg-gray-500 !rounded 
-                     whitespace-nowrap
-                     opacity-0 group-hover:opacity-100 transition"
-                    >
-                      Re-allot Driver
-                    </span>
-                  </div>
-
-                  <div className="relative group">
-                    <button className="p-2 bg-purple-100 !rounded-full cursor-pointer">
-                      <img src={crossCircle} alt="Cancel" className="w-7 h-7" />
-                    </button>
-                    <span
-                      className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 
-                     px-2 py-1 text-xs text-white bg-gray-500 !rounded 
-                     whitespace-nowrap
-                     opacity-0 group-hover:opacity-100 transition"
-                    >
-                      Cancel Ride
-                    </span>
-                  </div>
-
-                  <div className="relative group">
-                    <button className="p-2 bg-red-100 !rounded-full cursor-pointer">
-                      ❌
-                    </button>
-                    <span
-                      className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 
-                     px-2 py-1 text-xs text-white bg-gray-500 !rounded 
-                     whitespace-nowrap
-                     opacity-0 group-hover:opacity-100 transition"
-                    >
-                      Close Ticket
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Tabs */}
-            <div className="flex border-b">
-              {dashboardData.ticket.tabs.map((tab, index) => (
-                <button
-                  key={index}
-                  className={`flex-1 p-2 ${
-                    tab === "Conversation"
-                      ? "text-teal-600 border-b-2 border-teal-500 font-medium"
-                      : "text-gray-600"
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            <div className="h-full">
-              {/* Chat Content */}
-              <div className="p-6 text-gray-500 text-center h-40">
-                Conversation history goes here.
-              </div>
-
-              {/* Input */}
-              <div className="border-t p-4 flex items-center gap-2">
-                <input
-                  type="text"
-                  placeholder="Type your reply here..."
-                  className="flex-1 border !rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400"
-                />
-                <button className="bg-teal-500 text-white px-4 py-2 !rounded-lg shadow hover:bg-teal-600">
-                  ➤
-                </button>
-              </div>
             </div>
           </div>
         </div>
+        <ChatPanel />
       </div>
     </div>
   );
