@@ -1,5 +1,8 @@
-import React, { useState } from "react";
-import {format} from "date-fns";
+import React, { useEffect, useRef, useState } from "react";
+import { DateRange } from "react-date-range";
+import {isWithinInterval, parse } from "date-fns";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
 
 const statusOption = ["completed", "cancelled", "ongoing", "pending"];
 
@@ -10,7 +13,7 @@ const dummyRides = [
     pickupAddress: "123 Main St",
     destinationAddress: "456 Oak St",
     fare: "$25",
-    createdAt: new Date(),
+    date: "19/09/2025",
     customerName: "Alice",
     driverName: "Bob",
   },
@@ -20,7 +23,7 @@ const dummyRides = [
     pickupAddress: "789 Pine St",
     destinationAddress: "321 Elm St",
     fare: "$18",
-    createdAt: new Date(),
+    date: "17/09/2025",
     customerName: "Charlie",
     driverName: "David",
   },
@@ -30,7 +33,7 @@ const dummyRides = [
     pickupAddress: "555 Maple St",
     destinationAddress: "999 Birch St",
     fare: "$30",
-    createdAt: new Date(),
+    date: "12/09/2025",
     customerName: "Eve",
     driverName: "Frank",
   },
@@ -40,65 +43,90 @@ const dummyRides = [
     pickupAddress: "111 Cedar St",
     destinationAddress: "222 Spruce St",
     fare: "$20",
-    createdAt: new Date(),
+    date: "20/09/2025",
     customerName: "Grace",
     driverName: "Hank",
   },
 ];
 
 const getStatusColor = (status) => {
-    switch (status.toLowerCase()){
-        case "completed":
-            return "bg-green-100 text-green-700";
-        case "cancelled":
-            return "bg-red-100 text-red-700";
-        case "ongoing":
-            return "bg-blue-100 text-blue-700";
-        default:
-            return "bg-orange-100 text-orange-700";
-    }
+  switch (status.toLowerCase()) {
+    case "completed":
+      return "bg-green-100 text-green-700";
+    case "cancelled":
+      return "bg-red-100 text-red-700";
+    case "ongoing":
+      return "bg-blue-100 text-blue-700";
+    default:
+      return "bg-orange-100 text-orange-700";
+  }
 };
 
 const RideManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [dateRange, setDateRange] = useState({
+    startDate: null,
+    endDate: null,
+    key: "selection",
+  });
 
+  const calendarRef = useRef(null);
 
-    const clearFilters = () => {
-        setSearchQuery("");
-        setStatusFilter("");
-        setDateFrom("");
-        setDateTo("");
+  // Close calendar on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (calendarRef.current && !calendarRef.current.contains(event.target)) {
+        setShowCalendar(false);
+      }
     };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-    // Filter rides based on search and status
-    const filteredRides = dummyRides.filter((ride) => {
-        const matchesSearch = 
-         searchQuery === "" ||
-         ride.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-         ride.driverName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-         ride.pickupAddress.toLowerCase().includes(searchQuery.toLowerCase()) ||
-         ride.destinationAddress.toLowerCase().includes(searchQuery.toLowerCase());
-
-        const matchesStatus = statusFilter === "" || ride.status === statusFilter;
-
-        const matchesDateFrom = dateFrom === "" || new Date(ride.createdAt) >= new Date(dateFrom);
-
-        const matchesDateTo = dateTo === "" || new Date(ride.createdAt) <= new Date(dateTo);
-
-        return matchesSearch && matchesStatus && matchesDateFrom && matchesDateTo;
+  const clearFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("");
+    setDateRange({
+      startDate: null,
+      endDate: null,
+      key: "selection",
     });
+  };
 
-    const totalPages = filteredRides.length > 0 ? 1 : 0;
+  // Filter rides based on search and status
+  const filteredRides = dummyRides.filter((ride) => {
+    const matchesSearch =
+      searchQuery === "" ||
+      ride.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ride.driverName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ride.pickupAddress.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ride.destinationAddress.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus = statusFilter === "" || ride.status === statusFilter;
+
+    const rideDate = parse(ride.date, "dd/MM/yyyy", new Date());
+    const matchesDate = 
+      !dateRange.startDate ||
+      !dateRange.endDate ||
+      isWithinInterval(rideDate, {
+        start: dateRange.startDate,
+        end: dateRange.endDate,
+      });
+
+    return matchesSearch && matchesStatus && matchesDate;
+  });
+
+  const totalPages = filteredRides.length > 0 ? 1 : 0;
 
   return (
     <div className="bg-[#d9fcfb] min-h-screen p-6">
       <h1 className="text-3xl font-bold mb-6">Ride Management</h1>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-4 mb-6 border rounded p-3 bg-white">
+    {/* Filters */}
+      <div className="flex gap-2 mb-4 items-center border rounded p-3 bg-white">
+        {/* Search */}
         <input
           type="text"
           placeholder="Search rides..."
@@ -107,77 +135,98 @@ const RideManagement = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
         />
 
+        {/* Status Filter */}
         <select
-         className="border rounded px-3 py-2"
-         value={statusFilter}
-         onChange={(e) => setStatusFilter(e.target.value)}>
-            <option value="">All Statuses</option>
-            {statusOption.map((status) => (
-                <option key={status} value={status}>
-                    {status.toUpperCase()}
-                </option>
-            ))}
-         </select>
+          className="border rounded px-3 py-2"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <option value="">All Statuses</option>
+          {statusOption.map((status) => (
+            <option key={status} value={status}>
+              {status.toUpperCase()}
+            </option>
+          ))}
+        </select>
 
-        <input
-            type="date"
-            className="border rounded px-3 py-2"
-            value={dateFrom}
-            onChange={(e) => setDateFrom(e.target.value)}
-        />
-        <input
-        type="date"
-            className="border rounded px-3 py-2"
-            value={dateTo}
-            onChange={(e) => setDateTo(e.target.value)} 
-        />
+        {/* Date Range Button */}
+        <div className="relative inline-block" ref={calendarRef}>
+          <button
+            onClick={() => setShowCalendar((prev) => !prev)}
+            className="bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600"
+          >
+            Date Range
+          </button>
 
-        <button 
-            onClick={clearFilters}
-            className="bg-blue-300 text-gray-700 px-4 py-2 rounded hover:bg-blue-400">
-            Clear
+          {showCalendar && (
+            <div className="absolute mt-2 right-0 z-50 bg-white border rounded-lg shadow-lg">
+              <DateRange
+                ranges={[dateRange]}
+                onChange={(ranges) => setDateRange(ranges.selection)}
+                moveRangeOnFirstSelection={false}
+                rangeColors={["#3b82f6"]}
+              />
+              <div className="flex justify-end p-2">
+                <button
+                  onClick={() => setShowCalendar(false)}
+                  className="bg-gray-200 text-gray-700 px-3 py-1 rounded hover:bg-gray-300"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Clear Filters */}
+        <button
+          onClick={clearFilters}
+          className="bg-blue-300 text-gray-700 px-4 py-2 rounded hover:bg-blue-400"
+        >
+          Clear
         </button>
       </div>
 
       {/* Ride List */}
       <div className="border rounded p-4 bg-white divide-y divide-gray-200">
         {filteredRides.map((ride) => (
-            <div 
-            key={ride.id}
-            className="py-3"
-            >
-                <div className="flex justify-between items-center">
-                    <strong>Ride #{ride.id}</strong>
-                    <span className={`px-2 py-1 rounded text-sm font-semibold ${getStatusColor(ride.status)}`}>
-                        {ride.status.toUpperCase()}
-                    </span>
-                </div>
-
-                <div className="flex justify-between mt-2">
-                    <div>
-                        <p>
-                            <span className="font-semibold">From:</span> {ride.pickupAddress}
-                        </p>
-                        <p>
-                            <span className="font-semibold">To:</span> {ride.destinationAddress}
-                        </p>
-                    </div>
-                    <div className="text-right">
-                        <p className="font-bold text-blue-600">{ride.fare}</p>
-                        <p className="text-gray-500">
-                            {format(new Date(ride.createdAt), "dd/MM/yyyy")}
-                        </p>
-                    </div>
-                </div>
-
-                <p className="text-gray-600 mt-1">
-                    Customer: {ride.customerName} | Driver: {ride.driverName}
-                </p>
+          <div key={ride.id} className="py-3">
+            <div className="flex justify-between items-center">
+              <strong>Ride #{ride.id}</strong>
+              <span
+                className={`px-2 py-1 rounded text-sm font-semibold ${getStatusColor(
+                  ride.status
+                )}`}
+              >
+                {ride.status.toUpperCase()}
+              </span>
             </div>
+
+            <div className="flex justify-between mt-2">
+              <div>
+                <p>
+                  <span className="font-semibold">From:</span>{" "}
+                  {ride.pickupAddress}
+                </p>
+                <p>
+                  <span className="font-semibold">To:</span>{" "}
+                  {ride.destinationAddress}
+                </p>
+              <p>
+                <span className="font-semibold">Date:</span>
+                {ride.date}
+              </p>
+              </div>
+            </div>
+
+            <p className="text-gray-600 mt-1">
+              Customer: {ride.customerName} | Driver: {ride.driverName}
+            </p>
+          </div>
         ))}
 
         {/* Page */}
-        <div className="mt-4 pt-4 text-gray-700">
+        <div className=" mt-3 pt-3 text-gray-700">
           Page 1 of {totalPages} ({filteredRides.length} total)
         </div>
       </div>
