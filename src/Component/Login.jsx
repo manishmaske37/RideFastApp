@@ -47,8 +47,6 @@ const Login = ({ onLogin }) => {
       <div className="w-1/2 bg-teal-500 flex flex-col justify-center items-center text-white">
         <div className="flex flex-col items-center justify-center min-h-screen transform scale-125">
           <i className="bi bi-headset text-6xl mb-3"></i>
-          <h1 className="text-4xl font-bold">RideFast</h1>
-          <p className="text-lg">Support Portal</p>
         </div>
       </div>
 
