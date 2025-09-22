@@ -17,6 +17,7 @@ import DailyReports from "./Component/DailyReports";
 import UserManagement from "./Component/UserManagement";
 import RideManagement from "./Component/RideManagement";
 import HelpSupport from "./Component/HelpSupport";
+import LiveSupport from "./Component/LiveSupport";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -48,9 +49,12 @@ function App() {
     navigate("/", { replace: true });
   };
 
+// Determine if sidebar should be shown
+const showSidebar = isLoggedIn && location.pathname !== "/live-support";
+
   return (
     <div className="flex">
-      {isLoggedIn && <Sidebar onAvatarClick={() => setShowModal(true)} />}
+      {showSidebar && <Sidebar onAvatarClick={() => setShowModal(true)} />}
 
       <div className="flex-1 p-4">
         <Routes>
@@ -79,16 +83,32 @@ function App() {
               )
             }
           />
-          <Route 
-           path="/users"
-           element={
-            isLoggedIn ? <div className="ml-20"> <UserManagement /> </div>: <Navigate to="/" replace />
-           }/>
           <Route
-          path="/ride"
-          element = {
-            isLoggedIn ? <div className="ml-20"> <RideManagement /> </div>: <Navigate to="/" replace />
-          } />
+            path="/users"
+            element={
+              isLoggedIn ? (
+                <div className="ml-20">
+                  {" "}
+                  <UserManagement />{" "}
+                </div>
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+          <Route
+            path="/ride"
+            element={
+              isLoggedIn ? (
+                <div className="ml-20">
+                  {" "}
+                  <RideManagement />{" "}
+                </div>
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
           <Route
             path="/users"
             element={
@@ -129,7 +149,29 @@ function App() {
 
           <Route
             path="/help"
-            element={isLoggedIn ? <div className="ml-20"> <HelpSupport /> </div> : <Navigate to="/" replace />}
+            element={
+              isLoggedIn ? (
+                <div className="ml-20">
+                  {" "}
+                  <HelpSupport />{" "}
+                </div>
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+
+          <Route
+            path="/live-support"
+            element={
+              isLoggedIn ? (
+                <div>
+                  <LiveSupport />
+                </div>
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
           />
         </Routes>
       </div>

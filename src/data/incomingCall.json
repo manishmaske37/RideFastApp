@@ -1,0 +1,37 @@
+{
+  "caller": {
+    "name": "Rajesh Kumar",
+    "role": "Driver"
+  },
+  "trip": {
+    "id": "RID-LIVE-007"
+  },
+  "participants": {
+    "customer": {
+      "name": "Aman Gupta",
+      "initial": "A"
+    },
+    "driver": {
+      "name": "Rajesh Kumar",
+      "initial": "R"
+    }
+  },
+  "timeline": [
+    {
+      "status": "Driver Assigned",
+      "time": "11:05 AM",
+      "completed": true
+    },
+    {
+      "status": "Driver Arrived at Pickup",
+      "time": "11:10 AM",
+      "completed": true
+    },
+    {
+      "status": "Trip In Progress",
+      "time": null,
+      "completed": false,
+      "highlight": true
+    }
+  ]
+}
