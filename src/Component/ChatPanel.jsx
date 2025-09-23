@@ -1,6 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import crossCircle from "../assets/cross-circle.png";
-import { useState } from "react";
+import {
+  Ticket,
+  MapPin,
+  MapPinned,
+  IndianRupee,
+  Car,
+  Phone,
+  User,
+  Calendar,
+  ClipboardList,
+  Star,
+} from "lucide-react";
 
 // JSON data
 const dashboardData = {
@@ -34,19 +45,6 @@ const userInfo = {
   },
 };
 
-import {
-  Ticket,
-  MapPin,
-  MapPinned,
-  IndianRupee,
-  Car,
-  Phone,
-  User,
-  Calendar,
-  ClipboardList,
-  Star,
-} from "lucide-react";
-
 const ChatPanel = () => {
   const [activeTab, setActiveTab] = useState("Conversation");
 
@@ -56,113 +54,60 @@ const ChatPanel = () => {
       <div className="col-span-2 border-2 border-green-300 !rounded-lg">
         <div className="bg-white !rounded-lg shadow flex flex-col h-full">
           {/* Ticket Header */}
-          <div className="flex justify-between items-center border-b border-gray-300 p-4">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center border-b border-gray-300 p-4 gap-4">
             <div>
-              <h3 className="font-bold">{dashboardData.ticket.title}</h3>
-              <p className="text-gray-600 text-sm">
+              <h3 className="font-bold text-base sm:text-lg">
+                {dashboardData.ticket.title}
+              </h3>
+              <p className="text-gray-600 text-xs sm:text-sm">
                 Ticket #{dashboardData.ticket.ticketId}
               </p>
             </div>
-            <div className="flex gap-2">
-              <div className="flex gap-2">
-                <div className="relative group">
-                  <button className="p-2 bg-green-100 !rounded-full cursor-pointer">
-                    📞
-                  </button>
-                  <span
-                    className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 
-                     px-2 py-1 text-xs text-white bg-gray-500 !rounded 
-                     whitespace-nowrap
-                     opacity-0 group-hover:opacity-100 transition"
-                  >
-                    Start Call (WebRTC)
-                  </span>
-                </div>
 
-                <div className="relative group">
-                  <button className="p-2 bg-blue-100 !rounded-full cursor-pointer">
-                    👤
+            {/* Actions */}
+            {/* Actions */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:flex lg:flex-wrap gap-4 justify-start lg:justify-between w-full lg:w-auto">
+              {[
+                { icon: "📞", label: "Start Call", color: "green" },
+                { icon: "👤", label: "Assign Agent", color: "blue" },
+                { icon: "⬆️", label: "Escalate Ticket", color: "yellow" },
+                { icon: "↔️", label: "Re-allot Driver", color: "purple" },
+                {
+                  icon: (
+                    <img src={crossCircle} alt="Cancel" className="w-6 h-6" />
+                  ),
+                  label: "Cancel Ride",
+                  color: "purple",
+                },
+                { icon: "❌", label: "Close Ticket", color: "red" },
+              ].map((action, i) => (
+                <div key={i} className="flex flex-col items-center">
+                  <button
+                    className={`p-3 rounded-full shadow-md bg-${action.color}-100`}
+                  >
+                    {action.icon}
                   </button>
                   <span
-                    className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 
-                     px-2 py-1 text-xs text-white bg-gray-500 !rounded 
-                     whitespace-nowrap
-                     opacity-0 group-hover:opacity-100 transition"
+                    className={`mt-2 text-xs sm:text-sm font-medium text-${action.color}-700`}
                   >
-                    Assign Agent
+                    {action.label}
                   </span>
                 </div>
-
-                <div className="relative group">
-                  <button className="p-2 bg-yellow-100 !rounded-full cursor-pointer">
-                    ⬆️
-                  </button>
-                  <span
-                    className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 
-                     px-2 py-1 text-xs text-white bg-gray-500 !rounded 
-                     whitespace-nowrap
-                     opacity-0 group-hover:opacity-100 transition"
-                  >
-                    Escalate Ticket
-                  </span>
-                </div>
-
-                <div className="relative group">
-                  <button className="p-2 bg-purple-100 !rounded-full cursor-pointer">
-                    ↔️
-                  </button>
-                  <span
-                    className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 
-                     px-2 py-1 text-xs text-white bg-gray-500 !rounded 
-                     whitespace-nowrap
-                     opacity-0 group-hover:opacity-100 transition"
-                  >
-                    Re-allot Driver
-                  </span>
-                </div>
-
-                <div className="relative group">
-                  <button className="p-2 bg-purple-100 !rounded-full cursor-pointer">
-                    <img src={crossCircle} alt="Cancel" className="w-7 h-7" />
-                  </button>
-                  <span
-                    className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 
-                     px-2 py-1 text-xs text-white bg-gray-500 !rounded 
-                     whitespace-nowrap
-                     opacity-0 group-hover:opacity-100 transition"
-                  >
-                    Cancel Ride
-                  </span>
-                </div>
-
-                <div className="relative group">
-                  <button className="p-2 bg-red-100 !rounded-full cursor-pointer">
-                    ❌
-                  </button>
-                  <span
-                    className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 
-                     px-2 py-1 text-xs text-white bg-gray-500 !rounded 
-                     whitespace-nowrap
-                     opacity-0 group-hover:opacity-100 transition"
-                  >
-                    Close Ticket
-                  </span>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
           {/* Tabs */}
-          <div className="flex border-b border-gray-300">
+          <div className="flex flex-col sm:flex-row border-b border-gray-300">
             {dashboardData.ticket.tabs.map((tab, index) => (
               <button
                 key={index}
-                onClick={() => setActiveTab(tab)} // ✅ set active tab on click
-                className={`flex-1 p-2 ${
+                onClick={() => setActiveTab(tab)}
+                className={`flex-1 p-2 text-sm sm:text-base cursor-pointer ${
                   activeTab === tab
                     ? "text-teal-600 border-b-2 border-teal-500 font-medium"
                     : "text-gray-600"
-                } hover:bg-gray-200 transition cursor-pointer`}
+                } hover:bg-gray-200 transition`}
               >
                 {tab}
               </button>
@@ -170,60 +115,53 @@ const ChatPanel = () => {
           </div>
 
           {/* Conditional Content */}
-          <div className="h-full">
+          <div className="flex flex-col h-full">
+            {/* Conversation */}
             {activeTab === "Conversation" && (
-              <div className="h-full">
-                {/* Chat Content */}
-                <div className="p-6 text-gray-500 text-center h-40">
+              <div className="h-full flex flex-col justify-end">
+                <div className="p-4 sm:p-6 text-gray-500 text-center h-62">
                   Conversation history goes here.
                 </div>
-
-                {/* Input */}
-                <div className="border-t p-4 flex items-center gap-2">
+                <div className="border-t p-2 sm:p-4 flex items-center gap-2">
                   <input
                     type="text"
                     placeholder="Type your reply here..."
-                    className="flex-1 border !rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400 h-20"
+                    className="flex-1 border rounded-lg px-2 sm:px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400 h-12 sm:h-14"
                   />
-                  <button className="bg-teal-500 text-white px-4 py-2 !rounded-lg shadow hover:bg-teal-600 h-20 text-2xl">
+                  <button className="bg-teal-500 text-white px-4 py-2 rounded-lg shadow hover:bg-teal-600 h-12 sm:h-14 text-xl sm:text-2xl">
                     ➤
                   </button>
                 </div>
               </div>
             )}
 
+            {/* Ride Details */}
             {activeTab === "Ride Details" && (
-              <div className="p-6 text-gray-700">
-                {/* Ride Map Placeholder */}
-                <div className="bg-gray-100 rounded-lg flex items-center justify-center h-40 mb-6">
-                  <span className="text-xl font-semibold text-gray-500">
+              <div className="p-4 sm:p-6 text-gray-700">
+                <div className="bg-gray-100 rounded-lg flex items-center justify-center h-32 sm:h-40 mb-6">
+                  <span className="text-sm sm:text-xl font-semibold text-gray-500">
                     Ride Map Goes Here
                   </span>
                 </div>
-
-                {/* Ride Details */}
-                <div className="space-y-3 text-gray-700">
+                <div className="space-y-3 text-gray-700 text-sm sm:text-base">
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-2 font-semibold">
                       <Ticket className="w-4 h-4 text-gray-500" /> Ride ID:
                     </span>
                     <span>{rideValues.rideId}</span>
                   </div>
-
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-2 font-semibold">
                       <MapPin className="w-4 h-4 text-gray-500" /> From:
                     </span>
                     <span>{rideValues.from}</span>
                   </div>
-
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-2 font-semibold">
                       <MapPinned className="w-4 h-4 text-gray-500" /> To:
                     </span>
                     <span>{rideValues.to}</span>
                   </div>
-
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-2 font-semibold">
                       <IndianRupee className="w-4 h-4 text-gray-500" /> Final
@@ -231,7 +169,6 @@ const ChatPanel = () => {
                     </span>
                     <span>{rideValues.finalFare}</span>
                   </div>
-
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-2 font-semibold">
                       <Car className="w-4 h-4 text-gray-500" /> Vehicle:
@@ -242,29 +179,26 @@ const ChatPanel = () => {
               </div>
             )}
 
+            {/* User Info */}
             {activeTab === "User Info" && (
-              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
-                {/* Customer Details */}
+              <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 text-gray-700 text-sm sm:text-base">
+                {/* Customer */}
                 <div className="border border-teal-400 rounded-xl p-4 shadow-sm">
                   <h3 className="font-semibold text-gray-800 border-b border-gray-300 pb-2 mb-3">
                     Customer Details
                   </h3>
-
-                  {/* Name & Rating */}
                   <div className="mb-2">
                     <p className="font-semibold">{userInfo.customer.name}</p>
-                    <p className="flex items-center text-sm text-gray-600">
+                    <p className="flex items-center text-xs sm:text-sm text-gray-600">
                       <Star className="w-4 h-4 text-yellow-500 mr-1" />{" "}
                       {userInfo.customer.rating}
                     </p>
                   </div>
-
-                  {/* Trips & Member Since */}
-                  <div className="space-y-2 text-sm">
+                  <div className="space-y-2 text-xs sm:text-sm">
                     <div className="flex justify-between items-center">
                       <span className="flex items-center gap-2">
                         <ClipboardList className="w-4 h-4 text-gray-500" />{" "}
-                        Total Trips:
+                        Trips
                       </span>
                       <span className="font-medium">
                         {userInfo.customer.totalTrips}
@@ -272,63 +206,46 @@ const ChatPanel = () => {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-gray-500" /> Member
-                        Since:
+                        <Calendar className="w-4 h-4 text-gray-500" /> Since
                       </span>
                       <span className="font-medium">
                         {userInfo.customer.memberSince}
                       </span>
                     </div>
                   </div>
-
-                  {/* Action Icons */}
-                  <div className="flex justify-evenly gap-4 mt-6">
+                  <div className="flex justify-evenly gap-4 mt-4 sm:mt-6">
                     <div className="hover:bg-green-100 rounded-full p-2 cursor-pointer relative group">
                       <Phone className="w-5 h-5 text-green-500" />
-                      <span
-                        className="absolute top-full mb-1 left-1/2 -translate-x-1/2 
-                     px-2 py-1 text-xs text-white bg-gray-500 !rounded 
-                     whitespace-nowrap
-                     opacity-0 group-hover:opacity-100 transition"
-                      >
-                        Start Call with Customer
+                      <span className="absolute top-full mb-1 left-1/2 -translate-x-1/2 px-2 py-1 text-xs text-white bg-gray-500 !rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition">
+                        Start Call with Driver
                       </span>
                     </div>
                     <div className="hover:bg-blue-100 rounded-full p-2 cursor-pointer relative group">
                       <User className="w-5 h-5 text-blue-500 cursor-pointer" />
-                      <span
-                        className="absolute top-full mb-1 left-1/2 -translate-x-1/2 
-                     px-2 py-1 text-xs text-white bg-gray-500 !rounded 
-                     whitespace-nowrap
-                     opacity-0 group-hover:opacity-100 transition"
-                      >
+                      <span className="absolute top-full mb-1 left-1/2 -translate-x-1/2 px-2 py-1 text-xs text-white bg-gray-500 !rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition">
                         View Full Profile
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Driver Details */}
+                {/* Driver */}
                 <div className="border border-teal-400 rounded-xl p-4 shadow-sm">
                   <h3 className="font-semibold text-gray-800 border-b border-gray-300 pb-2 mb-3">
                     Driver Details
                   </h3>
-
-                  {/* Name & Rating */}
                   <div className="mb-2">
                     <p className="font-semibold">{userInfo.driver.name}</p>
-                    <p className="flex items-center text-sm text-gray-600">
+                    <p className="flex items-center text-xs sm:text-sm text-gray-600">
                       <Star className="w-4 h-4 text-yellow-500 mr-1" />{" "}
                       {userInfo.driver.rating}
                     </p>
                   </div>
-
-                  {/* Trips & Member Since */}
-                  <div className="space-y-2 text-sm">
+                  <div className="space-y-2 text-xs sm:text-sm">
                     <div className="flex justify-between items-center">
                       <span className="flex items-center gap-2">
                         <ClipboardList className="w-4 h-4 text-gray-500" />{" "}
-                        Total Trips:
+                        Trips
                       </span>
                       <span className="font-medium">
                         {userInfo.driver.totalTrips}
@@ -336,36 +253,23 @@ const ChatPanel = () => {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-gray-500" /> Member
-                        Since:
+                        <Calendar className="w-4 h-4 text-gray-500" /> Since
                       </span>
                       <span className="font-medium">
                         {userInfo.driver.memberSince}
                       </span>
                     </div>
                   </div>
-
-                  {/* Action Icons */}
-                  <div className="flex justify-evenly gap-4 mt-6">
+                  <div className="flex justify-evenly gap-4 mt-4 sm:mt-6">
                     <div className="hover:bg-green-100 rounded-full p-2 cursor-pointer relative group">
                       <Phone className="w-5 h-5 text-green-500" />
-                      <span
-                        className="absolute top-full mb-1 left-1/2 -translate-x-1/2 
-                     px-2 py-1 text-xs text-white bg-gray-500 !rounded 
-                     whitespace-nowrap
-                     opacity-0 group-hover:opacity-100 transition"
-                      >
+                      <span className="absolute top-full mb-1 left-1/2 -translate-x-1/2 px-2 py-1 text-xs text-white bg-gray-500 !rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition">
                         Start Call with Driver
                       </span>
                     </div>
                     <div className="hover:bg-blue-100 rounded-full p-2 cursor-pointer relative group">
                       <User className="w-5 h-5 text-blue-500 cursor-pointer" />
-                      <span
-                        className="absolute top-full mb-1 left-1/2 -translate-x-1/2 
-                     px-2 py-1 text-xs text-white bg-gray-500 !rounded 
-                     whitespace-nowrap
-                     opacity-0 group-hover:opacity-100 transition"
-                      >
+                      <span className="absolute top-full mb-1 left-1/2 -translate-x-1/2 px-2 py-1 text-xs text-white bg-gray-500 !rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition">
                         View Full Profile
                       </span>
                     </div>

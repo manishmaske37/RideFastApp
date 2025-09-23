@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { DateRange } from "react-date-range";
-import {isWithinInterval, parse } from "date-fns";
+import { isWithinInterval, parse } from "date-fns";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
+import { useOnline } from "../context/OnlineContext";
+import { format } from "date-fns";
 
 const statusOption = ["completed", "cancelled", "ongoing", "pending"];
 
@@ -107,7 +109,7 @@ const RideManagement = () => {
     const matchesStatus = statusFilter === "" || ride.status === statusFilter;
 
     const rideDate = parse(ride.date, "dd/MM/yyyy", new Date());
-    const matchesDate = 
+    const matchesDate =
       !dateRange.startDate ||
       !dateRange.endDate ||
       isWithinInterval(rideDate, {
@@ -120,11 +122,21 @@ const RideManagement = () => {
 
   const totalPages = filteredRides.length > 0 ? 1 : 0;
 
+  const { status } = useOnline();
+
   return (
-    <div className="bg-[#d9fcfb] min-h-screen p-6">
+    <div
+      className={`min-h-screen p-6 ${
+        status === "Online"
+          ? "bg-teal-100"
+          : status === "Busy"
+          ? "bg-yellow-100"
+          : ""
+      }`}
+    >
       <h1 className="text-3xl font-bold mb-6">Ride Management</h1>
 
-    {/* Filters */}
+      {/* Filters */}
       <div className="flex gap-2 mb-4 items-center border rounded p-3 bg-white">
         {/* Search */}
         <input
@@ -155,24 +167,80 @@ const RideManagement = () => {
             onClick={() => setShowCalendar((prev) => !prev)}
             className="bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600"
           >
-            Date Range
+            {dateRange.startDate && dateRange.endDate
+              ? `${format(dateRange.startDate, "dd/MM")} - ${format(
+                  dateRange.endDate,
+                  "dd/MM"
+                )}`
+              : "Date Range"}
           </button>
 
           {showCalendar && (
-            <div className="absolute mt-2 right-0 z-50 bg-white border rounded-lg shadow-lg">
-              <DateRange
-                ranges={[dateRange]}
-                onChange={(ranges) => setDateRange(ranges.selection)}
-                moveRangeOnFirstSelection={false}
-                rangeColors={["#3b82f6"]}
-              />
-              <div className="flex justify-end p-2">
-                <button
-                  onClick={() => setShowCalendar(false)}
-                  className="bg-gray-200 text-gray-700 px-3 py-1 rounded hover:bg-gray-300"
+            <div className="fixed inset-0 bg-teal-100 z-50">
+              {/* Header */}
+              <div>
+                <div className="flex justify-between items-center p-4 relative top-1">
+                  <div className="flex items-center gap-4">
+                    {/* Close Button */}
+                    <button
+                      onClick={() => setShowCalendar(false)}
+                      className="text-gray-600 text-xl font-bold"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {/* Save Button */}
+                  <button
+                    onClick={() => setShowCalendar(false)}
+                    className="text-gray-800 px-4 py-2 rounded hover:bg-gray-200"
+                  >
+                    Save
+                  </button>
+                </div>
+
+                {/* Label and Selected Range */}
+                <div className=" pl-20 mb-5 text-2xl">
+                  <p className="text-gray-600 text-sm">Select range</p>
+                  <p className="text-gray-800 font-medium">
+                    {dateRange.startDate && dateRange.endDate
+                      ? `${format(dateRange.startDate, "MMM d")} - ${format(
+                          dateRange.endDate,
+                          "MMM d"
+                        )}`
+                      : "No range selected"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="h-120 flex flex-col justify-center items-center">
+                <div
+                  className="
+      transform 
+      scale-95      /* 📱 small mobile */
+      sm:scale-110  /* 📱 bigger mobile */
+      md:scale-125  /* 📱 tablet */
+      lg:scale-140  /* 💻 desktop */"
                 >
-                  Close
-                </button>
+                  {/* Increase size */}
+                  <DateRange
+                    ranges={[dateRange]}
+                    onChange={(ranges) => setDateRange(ranges.selection)}
+                    moveRangeOnFirstSelection={false}
+                    rangeColors={["#0d9488"]}
+                    showDateDisplay={false}
+                    className="!bg-teal-100 rounded-lg"
+                  />
+
+                  <style>
+                    {`
+        .rdrNextPrevButton {
+          background-color: #CCFBF1;
+        }
+      `}
+                  </style>
+                </div>
               </div>
             </div>
           )}
@@ -212,10 +280,10 @@ const RideManagement = () => {
                   <span className="font-semibold">To:</span>{" "}
                   {ride.destinationAddress}
                 </p>
-              <p>
-                <span className="font-semibold">Date:</span>
-                {ride.date}
-              </p>
+                <p>
+                  <span className="font-semibold">Date:</span>
+                  {ride.date}
+                </p>
               </div>
             </div>
 

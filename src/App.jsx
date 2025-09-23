@@ -6,6 +6,8 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
+import { OnlineProvider, useOnline } from "./context/OnlineContext";
+
 import "./App.css";
 import Login from "./Component/Login";
 import Sidebar from "./Component/Sidebar";
@@ -53,6 +55,7 @@ function App() {
 const showSidebar = isLoggedIn && location.pathname !== "/live-support";
 
   return (
+    <OnlineProvider>
     <div className="flex">
       {showSidebar && <Sidebar onAvatarClick={() => setShowModal(true)} />}
 
@@ -90,31 +93,6 @@ const showSidebar = isLoggedIn && location.pathname !== "/live-support";
                 <div className="ml-20">
                   {" "}
                   <UserManagement />{" "}
-                </div>
-              ) : (
-                <Navigate to="/" replace />
-              )
-            }
-          />
-          <Route
-            path="/ride"
-            element={
-              isLoggedIn ? (
-                <div className="ml-20">
-                  {" "}
-                  <RideManagement />{" "}
-                </div>
-              ) : (
-                <Navigate to="/" replace />
-              )
-            }
-          />
-          <Route
-            path="/users"
-            element={
-              isLoggedIn ? (
-                <div className="ml-20">
-                  <UserManagement />
                 </div>
               ) : (
                 <Navigate to="/" replace />
@@ -205,6 +183,7 @@ const showSidebar = isLoggedIn && location.pathname !== "/live-support";
         </div>
       )}
     </div>
+    </OnlineProvider>
   );
 }
 

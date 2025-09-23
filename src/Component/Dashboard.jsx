@@ -1,37 +1,21 @@
-import React, { useState } from "react";
-import { FaCar, FaUser } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import {
+  FaUserCheck,
+  FaUser,
+  FaTicketAlt,
+  FaCar,
+  FaUsers
+} from "react-icons/fa";
 import { MdOutlineSupportAgent } from "react-icons/md";
-import { RiMoneyRupeeCircleLine } from "react-icons/ri";
-import { useEffect } from "react";
+import AdminAlert from "./Alerts/AdminAlert";
+import IncomingToast from "./Alerts/IncomingToast";
+import IncomingCallModal from "./Alerts/IncomingCallModal";
+import ChatPanel from "./ChatPanel";
+import SkeletonBox from "./SkeletonBox";
+import { useOnline } from "../context/OnlineContext";
 
 // JSON data
-const dashboardData = {
-  stats: [
-    {
-      id: 1,
-      title: "Active Drivers",
-      value: 0,
-      icon: <FaCar className="text-blue-500 text-2xl" />,
-    },
-    {
-      id: 2,
-      title: "Today Rides",
-      value: 0,
-      icon: <FaUser className="text-green-500 text-2xl" />,
-    },
-    {
-      id: 3,
-      title: "Open Tickets",
-      value: 0,
-      icon: <MdOutlineSupportAgent className="text-orange-500 text-2xl" />,
-    },
-    {
-      id: 4,
-      title: "Revenue",
-      value: "₹0.00",
-      icon: <RiMoneyRupeeCircleLine className="text-purple-600 text-2xl" />,
-    },
-  ],
+const other = {
   workload: {
     current: {
       name: "Aman Gupta",
@@ -50,104 +34,272 @@ const dashboardData = {
     tabs: ["Conversation", "Ride Details", "User Info"],
   },
 };
-import AdminAlert from "./Alerts/AdminAlert";
-import IncomingToast from "./Alerts/IncomingToast";
-import IncomingCallModal from "./Alerts/IncomingCallModal";
-import ChatPanel from "./ChatPanel";
-import SkeletonBox from "./SkeletonBox";
 
 const Dashboard = () => {
-  const [isOnline, setIsOnline] = useState(true);
+  const { status, setStatus } = useOnline();
   const [showAlert, setShowAlert] = useState(false);
-
   const [showToast, setShowToast] = useState(false);
   const [showModal, setShowModal] = useState(false);
-
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // simulate API fetch
-    setTimeout(() => {
+  const [dashboardData, setDashboardData] = useState({ stats: [] });
+
+  const statuses = ["Online", "Busy", "Offline"];
+
+  const handleNextStatus = () => {
+    const currentIndex = statuses.indexOf(status);
+    const nextIndex = (currentIndex + 1) % statuses.length;
+    const newStatus = statuses[nextIndex];
+    setStatus(newStatus);
+  };
+
+  const statusColors = {
+    Online: "text-green-600",
+    Busy: "text-yellow-600",
+    Offline: "text-gray-600",
+  };
+
+  const toggleTranslate = {
+    Online: "translate-x-1",
+    Busy: "translate-x-10",
+    Offline: "translate-x-20", // keep this but consider fixing with flex/percentages
+  };
+
+useEffect(() => {
+  const fetchDashboardData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(
+        "http://api.zenevo.in/support-service/dashboard/overview",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch dashboard data");
+      }
+
+      const result = await response.json();
+      const { role, metrics } = result?.data || {};
+
+      let stats = [];
+
+      if (role === "support") {
+        stats = [
+          {
+            id: 1,
+            title: "Total Resolved Tickets",
+            value: metrics.myTotalResolvedTickets ?? 0,
+            icon: <FaUserCheck className="text-blue-500 text-2xl" />,
+          },
+          {
+            id: 2,
+            title: "Pending Verifications",
+            value: metrics.pendingDriverVerifications ?? 0,
+            icon: <FaUsers className="text-green-500 text-2xl" />,
+          },
+          {
+            id: 3,
+            title: "Open Tickets",
+            value: metrics.openTicketsInCity ?? 0,
+            icon: <MdOutlineSupportAgent className="text-orange-500 text-2xl" />,
+          },
+          {
+            id: 4,
+            title: "Unassigned Tickets",
+            value: metrics.unassignedTicketsInCity ?? 0,
+            icon: <FaTicketAlt className="text-purple-600 text-2xl" />,
+          },
+        ];
+      } else if (role === "city_admin") {
+        stats = [
+          {
+            id: 1,
+            title: "Active Drivers",
+            value: metrics.activeDrivers ?? 0,
+            icon: <FaCar className="text-blue-500 text-2xl" />,
+          },
+          {
+            id: 2,
+            title: "Pending Drivers",
+            value: metrics.pendingDrivers ?? 0,
+            icon: <FaUsers className="text-green-500 text-2xl" />,
+          },
+          {
+            id: 3,
+            title: "Today Completed Rides",
+            value: metrics.todayCompletedRides ?? 0,
+            icon: <FaUserCheck className="text-orange-500 text-2xl" />,
+          },
+          {
+            id: 4,
+            title: "Unassigned Tickets",
+            value: metrics.unassignedTickets ?? 0,
+            icon: <FaTicketAlt className="text-purple-600 text-2xl" />,
+          },
+          {
+            id: 5,
+            title: "Today Resolved Tickets",
+            value: metrics.todayResolvedTickets ?? 0,
+            icon: <MdOutlineSupportAgent className="text-teal-500 text-2xl" />,
+          },
+          {
+            id: 6,
+            title: "Today New Tickets",
+            value: metrics.todayNewTickets ?? 0,
+            icon: <FaUser className="text-pink-500 text-2xl" />,
+          },
+        ];
+      }
+
+      setDashboardData({ stats });
       setLoading(false);
-    }, 2000); // 2 seconds delay
-  }, []);
+    } catch (error) {
+      console.error("Error fetching dashboard:", error);
+      setLoading(false);
+    }
+  };
+
+  fetchDashboardData();
+}, []);
+
 
   const simulateCall = () => {
     setShowToast(true);
     setTimeout(() => {
       setShowToast(false);
       setShowModal(true);
-    }, 1500); // 1.5 sec delay before popup
+    }, 1500);
   };
 
   return (
-    <div className={`p-6 min-h-screen ${isOnline ? "bg-teal-100" : ""}`}>
+    <div
+      className={`p-4 sm:p-6 min-h-screen ${
+        status === "Online"
+          ? "bg-teal-100"
+          : status === "Busy"
+          ? "bg-yellow-100"
+          : ""
+      }`}
+    >
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">RideFast Support</h1>
-        <div className="flex items-center gap-3">
+      <div className="relative flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold">RideFast Support</h1>
+
+        {/* Toggle for mobile/tablet */}
+        <div className="sm:hidden absolute top-0 right-0 mt-2 mr-2">
+          <div
+            className="flex items-center gap-2 cursor-pointer"
+            onClick={handleNextStatus}
+          >
+            <span className={`font-medium text-sm ${statusColors[status]}`}>
+              {status === "Online"
+                ? "You are Online"
+                : status === "Busy"
+                ? "You are Busy"
+                : "You are Offline"}
+            </span>
+
+            <div
+              className={`relative inline-flex items-center h-6 w-24 rounded-full ${
+                status === "Online"
+                  ? "bg-green-400"
+                  : status === "Busy"
+                  ? "bg-yellow-400"
+                  : "bg-gray-400"
+              }`}
+            >
+              <span className="sr-only">Toggle Online/Busy/Offline</span>
+              <span
+                className={`absolute left-0 inline-block w-6 h-6 transform bg-white rounded-full shadow-md transition-transform duration-300 ${toggleTranslate[status]}`}
+              ></span>
+            </div>
+          </div>
+        </div>
+
+        {/* Buttons + Toggle for laptop */}
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <button
-            className="bg-orange-400 text-white px-4 py-2 !rounded-lg shadow hover:bg-orange-500"
+            className="bg-orange-400 text-white px-3 py-2 rounded-lg shadow hover:bg-orange-500 text-sm sm:text-base"
             onClick={() => setShowAlert(true)}
           >
             📢 Simulate Admin Alert
           </button>
 
-          {/* Visitor Alert Component */}
           <AdminAlert show={showAlert} onClose={() => setShowAlert(false)} />
 
           <button
             onClick={simulateCall}
-            className="bg-indigo-500 text-white px-4 py-2 !rounded-lg shadow hover:bg-indigo-600"
+            className="bg-indigo-500 text-white px-3 py-2 rounded-lg shadow hover:bg-indigo-600 text-sm sm:text-base"
           >
             📞 Simulate Incoming Call
           </button>
 
-          {/* Components */}
           <IncomingToast show={showToast} />
           <IncomingCallModal
             show={showModal}
             onClose={() => setShowModal(false)}
           />
 
-          {/* ✅ Toggle Online/Offline */}
+          {/* Toggle for laptop */}
           <div
-            className="flex items-center gap-2 cursor-pointer"
-            onClick={() => setIsOnline(!isOnline)}
+            className="hidden sm:flex items-center gap-2 cursor-pointer"
+            onClick={handleNextStatus}
           >
-            {/* Text first */}
             <span
-              className={`font-medium ${
-                isOnline ? "text-green-600" : "text-gray-600"
-              }`}
+              className={`font-medium text-sm sm:text-base ${statusColors[status]}`}
             >
-              {isOnline ? "You are Online" : "You are Offline"}
+              {status === "Online"
+                ? "You are Online"
+                : status === "Busy"
+                ? "You are Busy"
+                : "You are Offline"}
             </span>
 
-            {/* Toggle button */}
-            <button
-              className={`relative inline-flex items-center h-6 w-12 !rounded-full transition-colors duration-300 focus:outline-none ${
-                isOnline ? "bg-green-400" : "bg-gray-400"
-              }`}
+            <div
+              className={`relative inline-flex items-center rounded-full 
+                    h-5 w-20        /* mobile default */
+                    sm:h-6 sm:w-24   /* tablet/small desktop */
+                    md:h-7 md:w-28   /* large desktop */
+                    ${
+                      status === "Online"
+                        ? "bg-green-400"
+                        : status === "Busy"
+                        ? "bg-yellow-400"
+                        : "bg-gray-400"
+                    }`}
             >
-              <span className="sr-only">Toggle Online/Offline</span>
+              <span className="sr-only">Toggle Online/Busy/Offline</span>
               <span
-                className={`inline-block w-5 h-5 transform bg-white !rounded-full shadow-md transition-transform duration-300 ${
-                  isOnline ? "translate-x-6" : "translate-x-1"
-                }`}
+                className={`absolute left-0 inline-block 
+        h-5 w-5        /* mobile circle */
+        sm:h-6 sm:w-6   /* tablet/small desktop */
+        md:h-7 md:w-7   /* large desktop */
+        transform bg-white rounded-full shadow-md transition-transform duration-300 
+        ${toggleTranslate[status]}`}
               ></span>
-            </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div
+  className={`grid grid-cols-1 sm:grid-cols-2 ${
+    dashboardData.stats.length === 6 ? "lg:grid-cols-3" : "lg:grid-cols-4"
+  } gap-4 mb-6`}
+>
         {loading
-          ? [...Array(4)].map((_, i) => (
+          ? [...Array(dashboardData.stats.length || 4)].map((_, i) => (
               <div
                 key={i}
-                className="bg-white rounded-lg p-4 shadow flex items-center gap-3 border-2 border-green-300"
+                className="bg-white rounded-lg p-4 shadow flex items-center gap-3 border border-gray-200"
               >
                 <SkeletonBox className="w-8 h-8" />
                 <div className="flex-1">
@@ -163,63 +315,73 @@ const Dashboard = () => {
               >
                 {stat.icon}
                 <div>
-                  <p className="font-bold text-xl">{stat.value}</p>
-                  <p className="text-gray-600">{stat.title}</p>
+                  <p className="font-bold text-lg sm:text-xl">{stat.value}</p>
+                  <p className="text-gray-600 text-sm sm:text-base">
+                    {stat.title}
+                  </p>
                 </div>
               </div>
             ))}
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      {/* Workload + Chat */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Workload */}
         <div className="col-span-1">
-          <h2 className="text-lg font-semibold mb-3">Your Workload</h2>
+          <h2 className="text-base sm:text-lg font-semibold mb-3">
+            Your Workload
+          </h2>
 
-          {/* offline */}
-          {!isOnline && (
-            <div className="bg-yellow-200 p-2 !rounded-lg mb-4 border-2 border-green-300">
+          {status === "Busy" && (
+            <div className="bg-blue-500 p-2 rounded-lg mb-4 text-white text-sm sm:text-base">
               <p>
-                You are offline. Please resolve your remaining tickets to end
-                your session
+                You are Busy. Please resolve your remaining tickets to end your
+                session
               </p>
             </div>
           )}
 
           {/* Current */}
-          <div className="bg-white !rounded-lg p-4 shadow mb-4 border-2 border-green-300">
-            <h3 className="text-teal-600 font-bold">Currently Resolving</h3>
-            <hr className="my-2 text-gray-300"/>
+          <div className="bg-white rounded-lg p-4 shadow mb-4 border-2 border-green-300">
+            <h3 className="text-teal-600 font-bold text-sm sm:text-base">
+              Currently Resolving
+            </h3>
+            <hr className="my-2 text-gray-300" />
             <p className="mt-2 font-medium">
-              {dashboardData.workload.current.name}
+              {other.workload.current.name}
             </p>
             <p className="text-gray-600 text-sm">
-              {dashboardData.workload.current.issue}
+              {other.workload.current.issue}
             </p>
 
             <div className="mt-2">
-            <span className="text-blue-600 text-sm font-semibold bg-blue-200 p-1 px-2 rounded-4xl">
-              {dashboardData.workload.current.status}
-            </span>
+              <span className="text-blue-600 text-xs sm:text-sm font-semibold bg-blue-200 px-2 py-1 rounded-full">
+                {other.workload.current.status}
+              </span>
             </div>
           </div>
 
           {/* Next */}
-          <div className="bg-white !rounded-lg p-4 shadow border-2 border-green-300">
-            <h3 className="text-gray-700 font-bold">Next in Queue</h3>
-            <hr className="my-2 text-gray-300"/>
+          <div className="bg-white rounded-lg p-4 shadow border-2 border-green-300">
+            <h3 className="text-gray-700 font-bold text-sm sm:text-base">
+              Next in Queue
+            </h3>
+            <hr className="my-2 text-gray-300" />
             <p className="mt-2 font-medium">
-              {dashboardData.workload.next.name}
+              {other.workload.next.name}
             </p>
             <p className="text-gray-600 text-sm">
-              {dashboardData.workload.next.issue}
+              {other.workload.next.issue}
             </p>
             <div className="mt-2">
-            <span className="text-orange-500 text-sm font-semibold bg-orange-200 p-1 px-2 rounded-4xl">
-              {dashboardData.workload.next.status}
-            </span>
+              <span className="text-orange-500 text-xs sm:text-sm font-semibold bg-orange-200 px-2 py-1 rounded-full">
+                {other.workload.next.status}
+              </span>
             </div>
           </div>
         </div>
+
+        {/* Chat Panel */}
         <ChatPanel />
       </div>
     </div>

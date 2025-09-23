@@ -10,6 +10,7 @@ import {
   Users,
   UserPlus,
 } from "lucide-react";
+import { useOnline } from "../context/OnlineContext";
 
 const ReportCard = ({ Icon, label, value, color }) => (
   <div className="w-full">
@@ -57,8 +58,17 @@ export default function DailyReports() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const { status } = useOnline();
   return (
-    <div className="min-h-screen px-6 md:px-24 py-8" style={{ background: "#d9f7f3" }}>
+    <div
+      className={`min-h-screen px-6 md:px-24 py-8 ${
+        status === "Online"
+          ? "bg-teal-100"
+          : status === "Busy"
+          ? "bg-yellow-100"
+          : ""
+      }`}
+    >
       {/* Top bar */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold">Daily Reports</h1>
@@ -108,17 +118,40 @@ export default function DailyReports() {
       {/* Ride Statistics */}
       <h2 className="text-xl font-bold mb-6">Ride Statistics</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
-        <ReportCard Icon={CarFront} label="Total Rides" value="0" color="blue" />
-        <ReportCard Icon={CheckCircle} label="Completed" value="0" color="green" />
+        <ReportCard
+          Icon={CarFront}
+          label="Total Rides"
+          value="0"
+          color="blue"
+        />
+        <ReportCard
+          Icon={CheckCircle}
+          label="Completed"
+          value="0"
+          color="green"
+        />
         <ReportCard Icon={XCircle} label="Cancelled" value="0" color="red" />
-        <ReportCard Icon={IndianRupee} label="Total Revenue" value="₹0" color="purple" />
-        <ReportCard Icon={BarChart2} label="Average Fare" value="₹0" color="orange" />
+        <ReportCard
+          Icon={IndianRupee}
+          label="Total Revenue"
+          value="₹0"
+          color="purple"
+        />
+        <ReportCard
+          Icon={BarChart2}
+          label="Average Fare"
+          value="₹0"
+          color="orange"
+        />
       </div>
 
       {/* Drivers & Registrations */}
       <div className="flex flex-col md:flex-row justify-between mb-4 items-start md:items-center gap-4">
         <h2 className="text-xl font-bold">Drivers & Registrations</h2>
-        <label className="flex items-center gap-2 text-lg font-bold" style={{marginRight:"55%"}}>
+        <label
+          className="flex items-center gap-2 text-lg font-bold"
+          style={{ marginRight: "55%" }}
+        >
           Peak Hours
           <input type="checkbox" className="w-4 h-4 accent-teal-600" />
         </label>
@@ -126,13 +159,28 @@ export default function DailyReports() {
 
       <div className="flex flex-col gap-6">
         <div className="self-start w-full max-w-sm">
-          <ReportCard Icon={CarFront} label="Active Drivers" value="0" color="blue" />
+          <ReportCard
+            Icon={CarFront}
+            label="Active Drivers"
+            value="0"
+            color="blue"
+          />
         </div>
         <div className="self-start w-full max-w-sm">
-          <ReportCard Icon={UserPlus} label="New Customers" value="3" color="green" />
+          <ReportCard
+            Icon={UserPlus}
+            label="New Customers"
+            value="3"
+            color="green"
+          />
         </div>
         <div className="self-start w-full max-w-sm">
-          <ReportCard Icon={Users} label="New Drivers" value="1" color="orange" />
+          <ReportCard
+            Icon={Users}
+            label="New Drivers"
+            value="1"
+            color="orange"
+          />
         </div>
       </div>
     </div>

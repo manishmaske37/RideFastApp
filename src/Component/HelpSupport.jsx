@@ -12,6 +12,7 @@ import {
   Layout,
   ChevronRight,
 } from "lucide-react";
+import { useOnline } from "../context/OnlineContext";
 
 const TicketStatus = {
   OPEN: "Open",
@@ -82,9 +83,15 @@ export default function HelpSupport() {
     setTickets(updated);
     setReply("");
   };
-
+  const { status } = useOnline();
   return (
-    <div className="p-6 space-y-6 bg-[#e6f7f5] min-h-screen">
+    <div className={`p-6 space-y-6 min-h-screen ${
+        status === "Online"
+          ? "bg-teal-100"
+          : status === "Busy"
+          ? "bg-yellow-100"
+          : ""
+      }`}>
       {/* HEADER */}
       <div>
         <h1 className="text-3xl font-bold mb-2">Help & Support Center</h1>

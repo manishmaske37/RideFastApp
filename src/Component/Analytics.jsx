@@ -1,5 +1,6 @@
 import React from "react";
 import { CalendarDays } from "lucide-react";
+import { useOnline } from "../context/OnlineContext";
 
 // KPI Card
 function KpiCard({ title, value, icon, color }) {
@@ -48,11 +49,16 @@ function Legend({ color, text }) {
 
 // Main Component
 export default function Analytics() {
+  
+  const { status } = useOnline();
   return (
-    <div
-      className="min-h-screen py-6"
-      style={{ backgroundColor: "#E6F7F6", paddingLeft: "100px", paddingRight: "25px" }}
-    >
+<div className={`min-h-screen py-6 pl-24 pr-6 ${
+        status === "Online"
+          ? "bg-teal-100"
+          : status === "Busy"
+          ? "bg-yellow-100"
+          : ""
+      }`}>
       {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Support Analytics</h1>

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { useOnline } from "../context/OnlineContext";
 
 const dummyData = {
   Customers: [
@@ -28,8 +29,17 @@ const UserManagement = () => {
       u.phone.includes(search)
   );
 
+  const { status } = useOnline();
   return (
-    <div className="min-h-screen bg-[#d9fcfb] p-6">
+    <div
+      className={`min-h-screen p-6 ${
+        status === "Online"
+          ? "bg-teal-100"
+          : status === "Busy"
+          ? "bg-yellow-100"
+          : ""
+      }`}
+    >
       <h1 className="text-4xl font-Semibold mb-6">User Management</h1>
 
       {/* Tabs */}
@@ -97,6 +107,6 @@ const UserManagement = () => {
       </div>
     </div>
   );
-}
+};
 
 export default UserManagement;
