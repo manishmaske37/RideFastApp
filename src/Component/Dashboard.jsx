@@ -4,7 +4,7 @@ import {
   FaUser,
   FaTicketAlt,
   FaCar,
-  FaUsers
+  FaUsers,
 } from "react-icons/fa";
 import { MdOutlineSupportAgent } from "react-icons/md";
 import AdminAlert from "./Alerts/AdminAlert";
@@ -61,114 +61,117 @@ const Dashboard = () => {
 
   const toggleTranslate = {
     Online: "translate-x-1",
-    Busy: "translate-x-10",
-    Offline: "translate-x-20", // keep this but consider fixing with flex/percentages
+    Busy: "translate-x-7",
+    Offline: "translate-x-13", // keep this but consider fixing with flex/percentages
   };
 
-useEffect(() => {
-  const fetchDashboardData = async () => {
-    try {
-      const token = localStorage.getItem("token");
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const token = localStorage.getItem("token");
 
-      const response = await fetch(
-        "http://api.zenevo.in/support-service/dashboard/overview",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+        const response = await fetch(
+          "http://api.zenevo.in/support-service/dashboard/overview",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch dashboard data");
         }
-      );
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch dashboard data");
+        const result = await response.json();
+        const { role, metrics } = result?.data || {};
+
+        let stats = [];
+
+        if (role === "support") {
+          stats = [
+            {
+              id: 1,
+              title: "Total Resolved Tickets",
+              value: metrics.myTotalResolvedTickets ?? 0,
+              icon: <FaUserCheck className="text-blue-500 text-2xl" />,
+            },
+            {
+              id: 2,
+              title: "Pending Verifications",
+              value: metrics.pendingDriverVerifications ?? 0,
+              icon: <FaUsers className="text-green-500 text-2xl" />,
+            },
+            {
+              id: 3,
+              title: "Open Tickets",
+              value: metrics.openTicketsInCity ?? 0,
+              icon: (
+                <MdOutlineSupportAgent className="text-orange-500 text-2xl" />
+              ),
+            },
+            {
+              id: 4,
+              title: "Unassigned Tickets",
+              value: metrics.unassignedTicketsInCity ?? 0,
+              icon: <FaTicketAlt className="text-purple-600 text-2xl" />,
+            },
+          ];
+        } else if (role === "city_admin") {
+          stats = [
+            {
+              id: 1,
+              title: "Active Drivers",
+              value: metrics.activeDrivers ?? 0,
+              icon: <FaCar className="text-blue-500 text-2xl" />,
+            },
+            {
+              id: 2,
+              title: "Pending Drivers",
+              value: metrics.pendingDrivers ?? 0,
+              icon: <FaUsers className="text-green-500 text-2xl" />,
+            },
+            {
+              id: 3,
+              title: "Today Completed Rides",
+              value: metrics.todayCompletedRides ?? 0,
+              icon: <FaUserCheck className="text-orange-500 text-2xl" />,
+            },
+            {
+              id: 4,
+              title: "Unassigned Tickets",
+              value: metrics.unassignedTickets ?? 0,
+              icon: <FaTicketAlt className="text-purple-600 text-2xl" />,
+            },
+            {
+              id: 5,
+              title: "Today Resolved Tickets",
+              value: metrics.todayResolvedTickets ?? 0,
+              icon: (
+                <MdOutlineSupportAgent className="text-teal-500 text-2xl" />
+              ),
+            },
+            {
+              id: 6,
+              title: "Today New Tickets",
+              value: metrics.todayNewTickets ?? 0,
+              icon: <FaUser className="text-pink-500 text-2xl" />,
+            },
+          ];
+        }
+
+        setDashboardData({ stats });
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching dashboard:", error);
+        setLoading(false);
       }
+    };
 
-      const result = await response.json();
-      const { role, metrics } = result?.data || {};
-
-      let stats = [];
-
-      if (role === "support") {
-        stats = [
-          {
-            id: 1,
-            title: "Total Resolved Tickets",
-            value: metrics.myTotalResolvedTickets ?? 0,
-            icon: <FaUserCheck className="text-blue-500 text-2xl" />,
-          },
-          {
-            id: 2,
-            title: "Pending Verifications",
-            value: metrics.pendingDriverVerifications ?? 0,
-            icon: <FaUsers className="text-green-500 text-2xl" />,
-          },
-          {
-            id: 3,
-            title: "Open Tickets",
-            value: metrics.openTicketsInCity ?? 0,
-            icon: <MdOutlineSupportAgent className="text-orange-500 text-2xl" />,
-          },
-          {
-            id: 4,
-            title: "Unassigned Tickets",
-            value: metrics.unassignedTicketsInCity ?? 0,
-            icon: <FaTicketAlt className="text-purple-600 text-2xl" />,
-          },
-        ];
-      } else if (role === "city_admin") {
-        stats = [
-          {
-            id: 1,
-            title: "Active Drivers",
-            value: metrics.activeDrivers ?? 0,
-            icon: <FaCar className="text-blue-500 text-2xl" />,
-          },
-          {
-            id: 2,
-            title: "Pending Drivers",
-            value: metrics.pendingDrivers ?? 0,
-            icon: <FaUsers className="text-green-500 text-2xl" />,
-          },
-          {
-            id: 3,
-            title: "Today Completed Rides",
-            value: metrics.todayCompletedRides ?? 0,
-            icon: <FaUserCheck className="text-orange-500 text-2xl" />,
-          },
-          {
-            id: 4,
-            title: "Unassigned Tickets",
-            value: metrics.unassignedTickets ?? 0,
-            icon: <FaTicketAlt className="text-purple-600 text-2xl" />,
-          },
-          {
-            id: 5,
-            title: "Today Resolved Tickets",
-            value: metrics.todayResolvedTickets ?? 0,
-            icon: <MdOutlineSupportAgent className="text-teal-500 text-2xl" />,
-          },
-          {
-            id: 6,
-            title: "Today New Tickets",
-            value: metrics.todayNewTickets ?? 0,
-            icon: <FaUser className="text-pink-500 text-2xl" />,
-          },
-        ];
-      }
-
-      setDashboardData({ stats });
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching dashboard:", error);
-      setLoading(false);
-    }
-  };
-
-  fetchDashboardData();
-}, []);
-
+    fetchDashboardData();
+  }, []);
 
   const simulateCall = () => {
     setShowToast(true);
@@ -266,7 +269,7 @@ useEffect(() => {
               className={`relative inline-flex items-center rounded-full 
                     h-5 w-20        /* mobile default */
                     sm:h-6 sm:w-24   /* tablet/small desktop */
-                    md:h-7 md:w-28   /* large desktop */
+                    md:h-7 md:w-20   /* large desktop */
                     ${
                       status === "Online"
                         ? "bg-green-400"
@@ -280,7 +283,7 @@ useEffect(() => {
                 className={`absolute left-0 inline-block 
         h-5 w-5        /* mobile circle */
         sm:h-6 sm:w-6   /* tablet/small desktop */
-        md:h-7 md:w-7   /* large desktop */
+        md:h-6 md:w-6   /* large desktop */
         transform bg-white rounded-full shadow-md transition-transform duration-300 
         ${toggleTranslate[status]}`}
               ></span>
@@ -291,10 +294,10 @@ useEffect(() => {
 
       {/* Stats */}
       <div
-  className={`grid grid-cols-1 sm:grid-cols-2 ${
-    dashboardData.stats.length === 6 ? "lg:grid-cols-3" : "lg:grid-cols-4"
-  } gap-4 mb-6`}
->
+        className={`grid grid-cols-1 sm:grid-cols-2 ${
+          dashboardData.stats.length === 6 ? "lg:grid-cols-3" : "lg:grid-cols-4"
+        } gap-4 mb-6`}
+      >
         {loading
           ? [...Array(dashboardData.stats.length || 4)].map((_, i) => (
               <div
@@ -347,9 +350,7 @@ useEffect(() => {
               Currently Resolving
             </h3>
             <hr className="my-2 text-gray-300" />
-            <p className="mt-2 font-medium">
-              {other.workload.current.name}
-            </p>
+            <p className="mt-2 font-medium">{other.workload.current.name}</p>
             <p className="text-gray-600 text-sm">
               {other.workload.current.issue}
             </p>
@@ -367,12 +368,8 @@ useEffect(() => {
               Next in Queue
             </h3>
             <hr className="my-2 text-gray-300" />
-            <p className="mt-2 font-medium">
-              {other.workload.next.name}
-            </p>
-            <p className="text-gray-600 text-sm">
-              {other.workload.next.issue}
-            </p>
+            <p className="mt-2 font-medium">{other.workload.next.name}</p>
+            <p className="text-gray-600 text-sm">{other.workload.next.issue}</p>
             <div className="mt-2">
               <span className="text-orange-500 text-xs sm:text-sm font-semibold bg-orange-200 px-2 py-1 rounded-full">
                 {other.workload.next.status}

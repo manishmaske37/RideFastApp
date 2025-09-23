@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import crossCircle from "../assets/cross-circle.png";
 import {
   Ticket,
   MapPin,
@@ -12,6 +11,8 @@ import {
   ClipboardList,
   Star,
 } from "lucide-react";
+import { FaArrowUp } from "react-icons/fa";
+import { AiOutlineCloseCircle } from "react-icons/ai";
 
 // JSON data
 const dashboardData = {
@@ -19,6 +20,29 @@ const dashboardData = {
     title: "Customer No-Show Dispute",
     ticketId: "T-48329",
     tabs: ["Conversation", "Ride Details", "User Info"],
+  },
+};
+
+const colorMap = {
+  green: {
+    bg: "bg-green-100 hover:bg-green-200",
+    text: "text-green-700",
+  },
+  blue: {
+    bg: "bg-blue-100 hover:bg-blue-200",
+    text: "text-blue-700",
+  },
+  yellow: {
+    bg: "bg-yellow-100 hover:bg-yellow-200",
+    text: "text-yellow-700",
+  },
+  purple: {
+    bg: "bg-purple-100 hover:bg-purple-200",
+    text: "text-purple-700",
+  },
+  red: {
+    bg: "bg-red-100 hover:bg-red-200",
+    text: "text-red-700",
   },
 };
 
@@ -65,30 +89,37 @@ const ChatPanel = () => {
             </div>
 
             {/* Actions */}
-            {/* Actions */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:flex lg:flex-wrap gap-4 justify-start lg:justify-between w-full lg:w-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:flex lg:flex-wrap gap-6 justify-start lg:justify-between w-full lg:w-auto">
               {[
                 { icon: "📞", label: "Start Call", color: "green" },
                 { icon: "👤", label: "Assign Agent", color: "blue" },
-                { icon: "⬆️", label: "Escalate Ticket", color: "yellow" },
-                { icon: "↔️", label: "Re-allot Driver", color: "purple" },
+                {
+                  icon: <FaArrowUp />,
+                  label: "Escalate Ticket",
+                  color: "yellow",
+                },
+                { icon: "⇄", label: "Re-allot Driver", color: "purple" },
                 {
                   icon: (
-                    <img src={crossCircle} alt="Cancel" className="w-6 h-6" />
+                    <AiOutlineCloseCircle className="text-red-600 text-xl" />
                   ),
                   label: "Cancel Ride",
-                  color: "purple",
+                  color: "red",
                 },
                 { icon: "❌", label: "Close Ticket", color: "red" },
               ].map((action, i) => (
                 <div key={i} className="flex flex-col items-center">
                   <button
-                    className={`p-3 rounded-full shadow-md bg-${action.color}-100`}
+                    className={`flex items-center justify-center w-10 h-10 rounded-full shadow-md ${
+                      colorMap[action.color].bg
+                    }`}
                   >
-                    {action.icon}
+                    <span className="text-xl flex">{action.icon}</span>
                   </button>
                   <span
-                    className={`mt-2 text-xs sm:text-sm font-medium text-${action.color}-700`}
+                    className={`mt-2 text-xs sm:text-sm font-medium ${
+                      colorMap[action.color].text
+                    } text-center`}
                   >
                     {action.label}
                   </span>
