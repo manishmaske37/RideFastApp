@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -8,27 +8,79 @@ const Login = ({ onLogin }) => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // 🔹 Decode JWT expiry
+  const getTokenExpiry = (token) => {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload.exp ? payload.exp * 1000 : null; // exp in ms
+    } catch {
+      return null;
+    }
+  };
+
+  // 🔹 Schedule auto logout
+  const scheduleAutoLogout = (token) => {
+    const expiry = getTokenExpiry(token);
+    if (!expiry) return;
+
+    const timeout = expiry - Date.now();
+    if (timeout > 0) {
+      setTimeout(() => {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("fullName");
+        localStorage.removeItem("email");
+
+        toast.info("Session expired. Please log in again.");
+        navigate("/login");
+      }, timeout);
+    }
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const response = await fetch("http://api.zenevo.in/support-service/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await fetch(
+        "http://api.zenevo.in/support-service/auth/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        }
+      );
+
+      // const response = await fetch("/support-service/auth/login", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({ email, password }),
+      // });
 
       const data = await response.json();
 
+      // let data = {};
+      // const text = await response.text();
+      // if (text) {
+      //   try {
+      //     data = JSON.parse(text);
+      //   } catch (err) {
+      //     console.error("Invalid JSON:", text);
+      //   }
+      // }
+
       if (response.ok && data.token) {
-        // ✅ Save token in parent (App.jsx)
+        // ✅ Save token in storage
+        localStorage.setItem("accessToken", data.token);
+        localStorage.setItem("fullName", data.agent.fullName);
+        localStorage.setItem("email", data.agent.email);
+
+        // ✅ Pass token to parent
         onLogin(data.token);
 
+        // ✅ Schedule auto-logout
+        scheduleAutoLogout(data.token);
+
         toast.success("Login successful!");
-        localStorage.setItem("fullName", data.agent.fullName);
         navigate("/dashboard");
       } else {
         toast.error(data.message || "Invalid email or password!");
@@ -40,6 +92,14 @@ const Login = ({ onLogin }) => {
       setLoading(false);
     }
   };
+
+  // Check token on every route change
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      scheduleAutoLogout(token); // ✅ reschedule if refreshing
+    }
+  }, [location]);
 
   return (
     <div className="flex min-h-screen">
