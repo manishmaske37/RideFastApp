@@ -13,6 +13,7 @@ import IncomingCallModal from "./Alerts/IncomingCallModal";
 import ChatPanel from "./ChatPanel";
 import SkeletonBox from "./SkeletonBox";
 import { useOnline } from "../context/OnlineContext";
+import Swal from "sweetalert2";
 
 // JSON data
 const other = {
@@ -46,11 +47,57 @@ const Dashboard = () => {
 
   const statuses = ["Online", "Busy", "Offline"];
 
-  const handleNextStatus = () => {
+  const handleNextStatus = async () => {
     const currentIndex = statuses.indexOf(status);
     const nextIndex = (currentIndex + 1) % statuses.length;
     const newStatus = statuses[nextIndex];
-    setStatus(newStatus);
+
+    const token = localStorage.getItem("accessToken");
+
+    try {
+      const response = await fetch("/support-service/agent/status", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: newStatus.toLowerCase() }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // ✅ API success → update context state
+        setStatus(
+          data.data.agentStatus.status.charAt(0).toUpperCase() +
+            data.data.agentStatus.status.slice(1)
+        );
+      } else if (response.status === 400) {
+        // ❌ Validation error → show message, do not change state
+        Swal.fire({
+          title: "Error",
+          text: data.error?.message || "Cannot update status",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+      } else {
+        // ❌ Other errors
+        Swal.fire({
+          title: "Error",
+          text: "Something went wrong. Please try again.",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+      }
+    } catch (err) {
+      console.error("Error updating status:", err);
+      Swal.fire({
+        title: "Network Error",
+        text: "Please check your internet connection and try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
   };
 
   const statusColors = {
@@ -68,18 +115,29 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("accessToken");
 
-        const response = await fetch(
-          "http://api.zenevo.in/support-service/dashboard/overview",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
+        const response = await fetch("/support-service/dashboard/overview", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        // 🔹 If token is expired → force logout
+        if (response.status === 401) {
+          const data = await response.json().catch(() => ({}));
+          if (data?.message?.includes("expired")) {
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("fullName");
+            localStorage.removeItem("email");
+
+            // redirect to login
+            window.location.href = "/";
+            return;
           }
-        );
+        }
 
         if (!response.ok) {
           throw new Error("Failed to fetch dashboard data");
@@ -171,6 +229,11 @@ const Dashboard = () => {
     };
 
     fetchDashboardData();
+
+    const interval = setInterval(fetchDashboardData, 10000);
+
+    // Cleanup when component unmounts
+    return () => clearInterval(interval);
   }, []);
 
   const simulateCall = () => {
@@ -183,7 +246,7 @@ const Dashboard = () => {
 
   return (
     <div
-      className={`p-4 sm:p-6 min-h-screen ${
+      className={`sm:p-6 min-h-screen ${
         status === "Online"
           ? "bg-teal-100"
           : status === "Busy"

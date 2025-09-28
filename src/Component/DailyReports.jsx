@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
+import { format } from "date-fns";
 import {
   CarFront,
   CheckCircle,
@@ -99,14 +99,95 @@ export default function DailyReports() {
           </button>
 
           {showCalendar && (
-            <div className="absolute top-0 right-full mr-2 z-50">
-              <Calendar
-                onChange={(date) => {
-                  setSelectedDate(date);
-                  setShowCalendar(false); // close after selecting
-                }}
-                value={selectedDate}
-              />
+            <div className="fixed inset-0 bg-teal-100 z-50">
+              {/* Header */}
+              <div>
+                <div className="flex justify-between items-center p-4 relative top-1">
+                  <div className="flex items-center gap-4">
+                    {/* Close Button */}
+                    <button
+                      onClick={() => setShowCalendar(false)}
+                      className="text-gray-600 text-xl font-bold"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {/* Save Button */}
+                  <button
+                    onClick={() => setShowCalendar(false)}
+                    className="text-gray-800 px-4 py-2 rounded hover:bg-gray-200"
+                  >
+                    Save
+                  </button>
+                </div>
+
+                {/* Label and Selected Date */}
+                <div className="pl-20 mb-5 text-2xl">
+                  <p className="text-gray-600 text-sm">Select date</p>
+                  <p className="text-gray-800 font-medium">
+                    {selectedDate
+                      ? format(selectedDate, "MMM d, yyyy")
+                      : "No date selected"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="h-120 flex flex-col justify-center items-center">
+                <div
+                  className="
+          transform 
+          scale-95      /* 📱 small mobile */
+          sm:scale-110  /* 📱 bigger mobile */
+          md:scale-125  /* 📱 tablet */
+          lg:scale-140  /* 💻 desktop */
+        "
+                >
+                  <Calendar
+                    onChange={(date) => {
+                      setSelectedDate(date);
+                    }}
+                    value={selectedDate}
+                    className="!bg-teal-100 rounded-lg custom-calendar"
+                  />
+
+                  <style>
+                    {`
+    /* Month + year in single line */
+    .custom-calendar .react-calendar__navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Weekday names in single line */
+    .custom-calendar .react-calendar__month-view__weekdays {
+      display: flex;
+      justify-content: space-between;
+      text-align: center;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Selected date background */
+    .custom-calendar .react-calendar__tile--active {
+      background: #0d9488 !important;
+      color: white !important;
+      border-radius: 50px; /* optional: rounded look */
+    }
+
+    /* Hover effect */
+    .custom-calendar .react-calendar__tile:hover {
+      background: #14b8a6; /* lighter teal on hover */
+      color: white;
+      border-radius: 50px;
+    }
+  `}
+                  </style>
+                </div>
+              </div>
             </div>
           )}
         </div>

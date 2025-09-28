@@ -61,7 +61,7 @@ function App() {
       <div className="flex">
         {showSidebar && <Sidebar onAvatarClick={() => setShowModal(true)} />}
 
-        <div className="flex-1 p-4">
+        <div className="flex-1">
           <Routes>
             {/* Login page → redirect to dashboard if already logged in */}
             <Route
