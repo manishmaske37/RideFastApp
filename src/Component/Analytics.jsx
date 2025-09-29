@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { CalendarDays, X } from "lucide-react";
-import { Calendar } from "react-date-range";
+import { CalendarDays } from "lucide-react";
+import { DateRange } from "react-date-range";
+import { format } from "date-fns";
 import { useOnline } from "../context/OnlineContext";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
@@ -56,7 +57,11 @@ export default function Analytics() {
 
   // Calendar state
   const [showCalendar, setShowCalendar] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [dateRange, setDateRange] = useState({
+    startDate: null,
+    endDate: null,
+    key: "selection",
+  });
 
   return (
     <div
@@ -77,7 +82,12 @@ export default function Analytics() {
         >
           <CalendarDays size={16} />
           <span className="font-medium text-sm">
-            {selectedDate.toDateString()}
+            {dateRange.startDate && dateRange.endDate
+              ? `${format(dateRange.startDate, "dd/MM")} - ${format(
+                  dateRange.endDate,
+                  "dd/MM"
+                )}`
+              : "Date Range"}
           </span>
         </button>
       </div>
@@ -88,10 +98,10 @@ export default function Analytics() {
           {/* TOP BAR */}
           <div className="flex justify-between items-center p-4">
             <button
-              className="text-gray-700 hover:text-black flex items-center gap-1"
+              className="text-gray-700 text-xl font-bold"
               onClick={() => setShowCalendar(false)}
             >
-              <X size={20} /> Close
+              ✕
             </button>
             <button
               className="text-gray-700 font-medium hover:underline"
@@ -101,13 +111,37 @@ export default function Analytics() {
             </button>
           </div>
 
-          {/* BIG CALENDAR CENTERED */}
-          <div className="flex-1 flex justify-center items-start overflow-auto">
-            <div className="scale-150 origin-top">
-              <Calendar
-                date={selectedDate}
-                onChange={(date) => setSelectedDate(date)}
-                color="#0f766e" // teal highlight
+          {/* LABEL + SELECTED RANGE */}
+          <div className="pl-20 mb-5 text-2xl">
+            <p className="text-gray-600 text-sm">Select range</p>
+            <p className="text-gray-800 font-medium">
+              {dateRange.startDate && dateRange.endDate
+                ? `${format(dateRange.startDate, "MMM d")} - ${format(
+                    dateRange.endDate,
+                    "MMM d"
+                  )}`
+                : "No range selected"}
+            </p>
+          </div>
+
+          {/* CALENDAR */}
+          <div className="flex-1 flex justify-center items-center overflow-auto">
+            <div
+              className="
+                transform 
+                scale-95      /* small mobile */
+                sm:scale-110  /* bigger mobile */
+                md:scale-125  /* tablet */
+                lg:scale-140  /* desktop */
+              "
+            >
+              <DateRange
+                ranges={[dateRange]}
+                onChange={(ranges) => setDateRange(ranges.selection)}
+                moveRangeOnFirstSelection={false}
+                rangeColors={["#0d9488"]}
+                showDateDisplay={false}
+                className="!bg-teal-100 rounded-lg"
               />
             </div>
           </div>
