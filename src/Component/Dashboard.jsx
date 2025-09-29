@@ -15,7 +15,7 @@ import SkeletonBox from "./SkeletonBox";
 import { useOnline } from "../context/OnlineContext";
 import Swal from "sweetalert2";
 
-// JSON data
+// JSON data 
 const other = {
   workload: {
     current: {

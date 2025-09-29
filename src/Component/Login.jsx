@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState(""); 
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -24,7 +24,7 @@ const Login = ({ onLogin }) => {
       if (text) {
         try {
           data = JSON.parse(text);
-        } catch (err) {
+        } catch (err) { 
           console.error("Invalid JSON:", text);
         }
       }

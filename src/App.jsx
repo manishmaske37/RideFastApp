@@ -12,7 +12,7 @@ import "./App.css";
 import Login from "./Component/Login";
 import Sidebar from "./Component/Sidebar";
 import Dashboard from "./Component/Dashboard";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify"; 
 import "react-toastify/dist/ReactToastify.css";
 import Analytics from "./Component/Analytics";
 import DailyReports from "./Component/DailyReports";
