@@ -7,13 +7,13 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  server: {
-    proxy: {
-      "/support-service": {
-        target: "https://api.zenevo.in",
-        changeOrigin: true,
-        secure: true,
-      },
-    },
-  },
+  // server: {
+  //   proxy: {
+  //     "/support-service": {
+  //       target: "https://api.zenevo.in",
+  //       changeOrigin: true,
+  //       secure: true,
+  //     },
+  //   },
+  // },
 })

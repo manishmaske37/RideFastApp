@@ -55,7 +55,7 @@ const Dashboard = () => {
     const token = localStorage.getItem("accessToken");
 
     try {
-      const response = await fetch("/support-service/agent/status", {
+      const response = await fetch("https://api.zenevo.in/support-service/agent/status", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

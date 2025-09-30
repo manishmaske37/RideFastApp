@@ -13,11 +13,17 @@ const Login = ({ onLogin }) => {
     setLoading(true);
 
     try {
-      const response = await fetch("/support-service/auth/login", {
+      const response = await fetch("https://api.zenevo.in/support-service/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+
+      // const response = await fetch("/support-service/auth/login", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({ email, password }),
+      // });
 
       let data = {};
       const text = await response.text();
