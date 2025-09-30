@@ -6,6 +6,7 @@ import {
   BarChart2,
   PieChart,
   HelpCircle,
+  NotepadText
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -48,6 +49,12 @@ const Sidebar = ({onAvatarClick}) => {
       label: "Help",
       icon: HelpCircle,
       link: "/help",
+    },
+    {
+      id: "Verification",
+      label: "Verification",
+      icon: NotepadText,
+      link: "#",
     },
   ];
 

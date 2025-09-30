@@ -150,6 +150,7 @@ export default function DailyReports() {
                     }}
                     value={selectedDate}
                     className="!bg-teal-100 rounded-lg custom-calendar"
+                    calendarType="gregory"
                   />
 
                   <style>
@@ -167,9 +168,19 @@ export default function DailyReports() {
       display: flex;
       justify-content: space-between;
       text-align: center;
-      font-weight: 500;
+      font-size: 0.75rem;
       margin-bottom: 0.5rem;
+      color: gray;
+      text-decoration: none;
     }
+    
+    /* Remove dotted underline and fix alignment */
+.custom-calendar .react-calendar__month-view__weekdays abbr {
+  text-decoration: none; /* remove underline */
+  cursor: default;
+  display: block;        /* ✅ fixes shifting */
+  text-align: center;    /* ✅ keeps text centered */
+}
 
     /* Selected date background */
     .custom-calendar .react-calendar__tile--active {

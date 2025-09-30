@@ -1,39 +1,35 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useContext } from "react";
 import { useOnline } from "../context/OnlineContext";
-import userService from "../services/user_service";
+
+const dummyData = {
+  Customers: [
+    { name: "Test 2", phone: "+91 7896543210", active: true },
+    { name: "Unknown User", phone: "+91 97656893011", active: true },
+    { name: "Unknown User", phone: "+91 97656893000", active: true },
+    { name: "Unknown User", phone: "+91 9876543211", active: true },
+    { name: "Unknown User", phone: "+91 97656893300", active: true },
+  ],
+  Drivers: [
+    { name: "Driver One", phone: "+91 9898989898", active: true },
+    { name: "Driver Two", phone: "+91 9123456789", active: false },
+    { name: "Driver Three", phone: "+91 9000011111", active: true },
+    { name: "Driver Four", phone: "+91 9345678912", active: true },
+  ],
+};
 
 const UserManagement = () => {
+  const [activeTab, setActiveTab] = useState("Customers");
 
-  const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const { status } = useOnline();
-
-  // Fetch all users once when page loads
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true);
-      try {
-        const data = await userService.getAllUsers();
-        setUsers(data);
-      } catch (err) {
-        console.error("Error fetching users:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, []);
-
-  // Filter for search box
+  const users = dummyData[activeTab] || [];
   const filterUsers = users.filter(
-    (u) => 
-      u.name?.toLowerCase().includes(search.toLowerCase()) ||
-      u.phone?.includes(search)
+    (u) =>
+      u.name.toLowerCase().includes(search.toLowerCase()) ||
+      u.phone.includes(search)
   );
 
+  const { status } = useOnline();
   return (
     <div
       className={`min-h-screen p-6 ${
@@ -46,6 +42,23 @@ const UserManagement = () => {
     >
       <h1 className="text-4xl font-Semibold mb-6">User Management</h1>
 
+      {/* Tabs */}
+      <div className="flex justify-evenly mb-4 border-b border-gray-300">
+        {["Customers", "Drivers"].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`pb-2 ${
+              activeTab === tab
+                ? "border-b-2 border-teal-500 font-semibold text-teal-600"
+                : "text-gray-500"
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
       {/* Search box */}
       <div className="mb-5">
         <input
@@ -57,50 +70,41 @@ const UserManagement = () => {
         />
       </div>
 
-      {/* Loader */}
-
-      {loading ? (
-        <p className="text-center text-gray-500">Loading users...</p>
-      ) : (
-        <div className="bg-white rounded-xl shadow-sm">
-          <div className="divide-y divide-gray-100">
-            {filterUsers.length > 0 ? (
-              filterUsers.map((user, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between px-4 py-3"
-                >
-                  <div lassName="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-teal-400 text-white flex items-center justify-center uppercase">
-                      {user.name?.[0] || "U"}
-                    </div>
-                    <div>
-                      <p className="font-medium">{user.name || "Unknown"}</p>
-                      <p className="text-sm text-gray-500">
-                        {user.phone || "N/A"}
-                      </p>
-                    </div>
-                  </div>
-                  <span
-                    className={`px-3 py-1 text-sm rounded-full ${
-                      user.active
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
-                    }`}>
-                    {user.active ? "Active" : "Inactive"}
-                  </span>
+      <div className="bg-white rounded-xl shadow-sm">
+        {/* UserList */}
+        <div className="divide-y divide-gray-100">
+          {filterUsers.map((user, i) => (
+            <div
+              key={i}
+              className="flex items-center justify-between px-4 py-3"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-teal-400 text-white flex items-center justify-center uppercase">
+                  {user.name[0]}
                 </div>
-              ))
-            ) : (
-              <p className="text-center text-gray-500 py-5">No users found</p>
-            )}
-          </div>
-
-          <div className="px-4 py-3 border-t border-gray-200 text-sm text-gray-600">
-            Total Users: {filterUsers.length}
-          </div>
+                <div>
+                  <p className="font-medium">{user.name}</p>
+                  <p className="text-sm text-gray-500">{user.phone}</p>
+                </div>
+              </div>
+              <span
+                className={`px-3 py-1 text-sm rounded-full ${
+                  user.active
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
+                }`}
+              >
+                {user.active ? "Active" : "Inactive"}
+              </span>
+            </div>
+          ))}
         </div>
-      )}
+
+        {/* Footer */}
+        <div className="px-4 py-3 border-t border-gray-200 text-sm text-gray-600">
+          Page 1 of 1 ({filterUsers.length} total)
+        </div>
+      </div>
     </div>
   );
 };
