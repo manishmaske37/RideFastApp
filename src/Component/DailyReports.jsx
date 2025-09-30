@@ -195,6 +195,22 @@ export default function DailyReports() {
       color: white;
       border-radius: 50px;
     }
+
+    /* Remove default border */
+.custom-calendar {
+  border: none !important;
+}
+  /* Also remove yellow when it's not active */
+.custom-calendar .react-calendar__tile--now:not(.react-calendar__tile--active) {
+  background: transparent !important;
+}
+
+/* Hover effect for all tiles including today */
+.custom-calendar .react-calendar__tile:hover {
+  background: #14b8a6 !important; /* lighter teal */
+  color: white !important;
+  border-radius: 50px;
+}
   `}
                   </style>
                 </div>

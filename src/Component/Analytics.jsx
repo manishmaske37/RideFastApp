@@ -1,10 +1,9 @@
-import React, { useState } from "react";
-import { CalendarDays } from "lucide-react";
-import { DateRange } from "react-date-range";
+import React, { useState, useRef, useEffect } from "react";
+import Calendar from "react-calendar";
 import { format } from "date-fns";
+import { CalendarDays } from "lucide-react";
 import { useOnline } from "../context/OnlineContext";
-import "react-date-range/dist/styles.css";
-import "react-date-range/dist/theme/default.css";
+import "react-calendar/dist/Calendar.css";
 
 // KPI Card
 function KpiCard({ title, value, icon, color }) {
@@ -55,13 +54,21 @@ function Legend({ color, text }) {
 export default function Analytics() {
   const { status } = useOnline();
 
-  // Calendar state
+  // Calendar state (single date)
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
-  const [dateRange, setDateRange] = useState({
-    startDate: null,
-    endDate: null,
-    key: "selection",
-  });
+  const calendarRef = useRef();
+
+  // Close calendar when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (calendarRef.current && !calendarRef.current.contains(event.target)) {
+        setShowCalendar(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div
@@ -76,77 +83,143 @@ export default function Analytics() {
       {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Support Analytics</h1>
-        <button
-          onClick={() => setShowCalendar(true)}
-          className="flex items-center gap-2 border rounded-md bg-white px-3 py-2 shadow-sm hover:bg-gray-100"
-        >
-          <CalendarDays size={16} />
-          <span className="font-medium text-sm">
-            {dateRange.startDate && dateRange.endDate
-              ? `${format(dateRange.startDate, "dd/MM")} - ${format(
-                  dateRange.endDate,
-                  "dd/MM"
-                )}`
-              : "Date Range"}
-          </span>
-        </button>
-      </div>
 
-      {/* FULLSCREEN CALENDAR POPUP */}
-      {showCalendar && (
-        <div className="fixed inset-0 bg-teal-100 z-50 flex flex-col">
-          {/* TOP BAR */}
-          <div className="flex justify-between items-center p-4">
-            <button
-              className="text-gray-700 text-xl font-bold"
-              onClick={() => setShowCalendar(false)}
-            >
-              ✕
-            </button>
-            <button
-              className="text-gray-700 font-medium hover:underline"
-              onClick={() => setShowCalendar(false)}
-            >
-              Save
-            </button>
-          </div>
+        {/* Date Picker Button */}
+        <div className="relative" ref={calendarRef}>
+          <button
+            onClick={() => setShowCalendar(true)}
+            className="flex items-center gap-2 border rounded-md bg-white px-3 py-2 shadow-sm hover:bg-gray-100"
+          >
+            <CalendarDays size={16} />
+            <span className="font-medium text-sm">
+              {format(selectedDate, "dd/MM/yyyy")}
+            </span>
+          </button>
 
-          {/* LABEL + SELECTED RANGE */}
-          <div className="pl-20 mb-5 text-2xl">
-            <p className="text-gray-600 text-sm">Select range</p>
-            <p className="text-gray-800 font-medium">
-              {dateRange.startDate && dateRange.endDate
-                ? `${format(dateRange.startDate, "MMM d")} - ${format(
-                    dateRange.endDate,
-                    "MMM d"
-                  )}`
-                : "No range selected"}
-            </p>
-          </div>
+          {/* FULLSCREEN CALENDAR POPUP */}
+          {showCalendar && (
+            <div className="fixed inset-0 bg-teal-100 z-50">
+              {/* Header */}
+              <div>
+                <div className="flex justify-between items-center p-4 relative top-1">
+                  <div className="flex items-center gap-4">
+                    {/* Close Button */}
+                    <button
+                      onClick={() => setShowCalendar(false)}
+                      className="text-gray-600 text-xl font-bold"
+                    >
+                      ✕
+                    </button>
+                  </div>
 
-          {/* CALENDAR */}
-          <div className="flex-1 flex justify-center items-center overflow-auto">
-            <div
-              className="
-                transform 
-                scale-95      /* small mobile */
-                sm:scale-110  /* bigger mobile */
-                md:scale-125  /* tablet */
-                lg:scale-140  /* desktop */
-              "
-            >
-              <DateRange
-                ranges={[dateRange]}
-                onChange={(ranges) => setDateRange(ranges.selection)}
-                moveRangeOnFirstSelection={false}
-                rangeColors={["#0d9488"]}
-                showDateDisplay={false}
-                className="!bg-teal-100 rounded-lg"
-              />
+                  {/* Save Button */}
+                  <button
+                    onClick={() => setShowCalendar(false)}
+                    className="text-gray-800 px-4 py-2 rounded hover:bg-gray-200"
+                  >
+                    Save
+                  </button>
+                </div>
+
+                {/* Label and Selected Date */}
+                <div className="pl-20 mb-5 text-2xl">
+                  <p className="text-gray-600 text-sm">Select date</p>
+                  <p className="text-gray-800 font-medium">
+                    {selectedDate
+                      ? format(selectedDate, "MMM d, yyyy")
+                      : "No date selected"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="h-120 flex flex-col justify-center items-center">
+                <div
+                  className="
+                  transform 
+                  scale-95      /* small mobile */
+                  sm:scale-110  /* bigger mobile */
+                  md:scale-125  /* tablet */
+                  lg:scale-140  /* desktop */
+                  w-full        /* full width */
+                  max-w-md      /* set max width */
+                  "
+                >
+                  <Calendar
+                    onChange={(date) => {
+                      setSelectedDate(date);
+                    }}
+                    value={selectedDate}
+                    className="!bg-teal-100 rounded-lg custom-calendar"
+                    calendarType="gregory"
+                  />
+
+                  <style>
+                    {`
+/* Month + year in single line */
+    .custom-calendar .react-calendar__navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Weekday names in single line */
+    .custom-calendar .react-calendar__month-view__weekdays {
+      display: flex;
+      justify-content: space-between;
+      text-align: center;
+      font-size: 0.75rem;
+      margin-bottom: 0.5rem;
+      color: gray;
+      text-decoration: none;
+    }
+    
+    /* Remove dotted underline and fix alignment */
+.custom-calendar .react-calendar__month-view__weekdays abbr {
+  text-decoration: none; /* remove underline */
+  cursor: default;
+  display: block;        /* ✅ fixes shifting */
+  text-align: center;    /* ✅ keeps text centered */
+}
+
+    /* Selected date background */
+    .custom-calendar .react-calendar__tile--active {
+      background: #0d9488 !important;
+      color: white !important;
+      border-radius: 50px; /* optional: rounded look */
+    }
+
+    /* Hover effect */
+    .custom-calendar .react-calendar__tile:hover {
+      background: #14b8a6; /* lighter teal on hover */
+      color: white;
+      border-radius: 50px;
+    }
+
+    /* Remove default border */
+.custom-calendar {
+  border: none !important;
+}
+  /* Also remove yellow when it's not active */
+.custom-calendar .react-calendar__tile--now:not(.react-calendar__tile--active) {
+  background: transparent !important;
+}
+
+/* Hover effect for all tiles including today */
+.custom-calendar .react-calendar__tile:hover {
+  background: #14b8a6 !important; /* lighter teal */
+  color: white !important;
+  border-radius: 50px;
+}
+  `}
+                  </style>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* KPI GRID */}
       <div className="flex flex-wrap -m-2 mb-6">
