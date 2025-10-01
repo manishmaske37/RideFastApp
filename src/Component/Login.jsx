@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
+import { API_BASE_URL } from "../config/api";
+
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState(""); 
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -13,27 +15,21 @@ const Login = ({ onLogin }) => {
     setLoading(true);
 
     try {
-      const response = await fetch("https://api.zenevo.in/support-service/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      // const response = await fetch("/support-service/auth/login", {
+      // const response = await fetch("https://api.zenevo.in/support-service/auth/login", {
       //   method: "POST",
       //   headers: { "Content-Type": "application/json" },
       //   body: JSON.stringify({ email, password }),
       // });
 
-      let data = {};
-      const text = await response.text();
-      if (text) {
-        try {
-          data = JSON.parse(text);
-        } catch (err) { 
-          console.error("Invalid JSON:", text);
-        }
-      }
+      const response = await fetch(
+        `${API_BASE_URL}/support-service/auth/login`, 
+        {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
 
       if (response.ok && data.token) {
         localStorage.setItem("accessToken", data.token);

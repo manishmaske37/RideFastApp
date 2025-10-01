@@ -15,7 +15,7 @@ import SkeletonBox from "./SkeletonBox";
 import { useOnline } from "../context/OnlineContext";
 import Swal from "sweetalert2";
 
-// JSON data 
+// JSON data
 const other = {
   workload: {
     current: {
@@ -36,6 +36,8 @@ const other = {
   },
 };
 
+import { API_BASE_URL } from "../config/api";
+
 const Dashboard = () => {
   const { status, setStatus } = useOnline();
   const [showAlert, setShowAlert] = useState(false);
@@ -55,15 +57,18 @@ const Dashboard = () => {
     const token = localStorage.getItem("accessToken");
 
     try {
-      const response = await fetch("https://api.zenevo.in/support-service/agent/status", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status: newStatus.toLowerCase() }),
-      });
-
+      const response = await fetch(
+        `${API_BASE_URL}/support-service/agent/status`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: newStatus.toLowerCase() }),
+        }
+      );
+      
       const data = await response.json();
 
       if (response.ok && data.success) {
@@ -117,7 +122,9 @@ const Dashboard = () => {
       try {
         const token = localStorage.getItem("accessToken");
 
-        const response = await fetch("/support-service/dashboard/overview", {
+        const response = await fetch(
+          `${API_BASE_URL}/support-service/dashboard/overview`, 
+          {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
