@@ -17,7 +17,6 @@ import {
 
 // --- Sub-components for better structure ---
 
-// Skeleton Loader for the driver list
 const DriverListSkeleton = () => (
   <div className="space-y-2">
     {[...Array(5)].map((_, i) => (
@@ -29,7 +28,6 @@ const DriverListSkeleton = () => (
   </div>
 );
 
-// Skeleton for the document viewer and details panel
 const DetailsSkeleton = () => (
   <div className="flex flex-col h-full animate-pulse">
     <div className="bg-gray-200 rounded-lg p-4 mb-4">
@@ -57,6 +55,7 @@ export default function Verification() {
 
   const [loadingDrivers, setLoadingDrivers] = useState(true);
   const [loadingDocuments, setLoadingDocuments] = useState(false);
+  const [isImageLoading, setIsImageLoading] = useState(false);
   const [driversError, setDriversError] = useState(null);
   const [documentsError, setDocumentsError] = useState(null);
 
@@ -64,12 +63,11 @@ export default function Verification() {
   const [rejectionReason, setRejectionReason] = useState("");
   const [customRejectionReason, setCustomRejectionReason] = useState("");
   
-  // State for Zooming and Panning
   const [zoomLevel, setZoomLevel] = useState(1);
   const [isPanning, setIsPanning] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const [translatePos, setTranslatePos] = useState({ x: 0, y: 0 });
-  const viewerRef = useRef(null);
+  const imageContainerRef = useRef(null);
 
 
   const commonRejectionReasons = [
@@ -80,7 +78,6 @@ export default function Verification() {
     "Document is incomplete or cut off.",
   ];
 
-  // Fetch pending drivers on component mount
   useEffect(() => {
     const fetchPendingDrivers = async (page = 1) => {
       setLoadingDrivers(true);
@@ -89,9 +86,7 @@ export default function Verification() {
         const token = localStorage.getItem("accessToken");
         const res = await fetch(
           `${API_BASE_URL}/verification-service/documents/drivers/pending?page=${page}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!res.ok) throw new Error("Failed to fetch pending drivers.");
         const data = await res.json();
@@ -111,8 +106,13 @@ export default function Verification() {
     setTranslatePos({ x: 0, y: 0 });
   };
 
+  useEffect(() => {
+    if (selectedDocument) {
+      setIsImageLoading(true);
+    }
+  }, [selectedDocument]);
 
-  // Fetch documents when a driver is selected
+
   useEffect(() => {
     if (!selectedDriver) return;
 
@@ -157,7 +157,6 @@ export default function Verification() {
     fetchDriverDocuments();
   }, [selectedDriver]);
 
-  // Panning Event Handlers
   const handleMouseDown = (e) => {
     if (zoomLevel <= 1) return;
     e.preventDefault();
@@ -166,7 +165,9 @@ export default function Verification() {
         x: e.clientX - translatePos.x, 
         y: e.clientY - translatePos.y 
     });
-    viewerRef.current.style.cursor = 'grabbing';
+    if (imageContainerRef.current) {
+        imageContainerRef.current.style.cursor = 'grabbing';
+    }
   };
 
   const handleMouseMove = (e) => {
@@ -179,8 +180,8 @@ export default function Verification() {
 
   const handleMouseUpOrLeave = () => {
     setIsPanning(false);
-    if (viewerRef.current) {
-        viewerRef.current.style.cursor = zoomLevel > 1 ? 'grab' : 'default';
+    if (imageContainerRef.current) {
+        imageContainerRef.current.style.cursor = zoomLevel > 1 ? 'grab' : 'default';
     }
   };
 
@@ -197,10 +198,7 @@ export default function Verification() {
         `${API_BASE_URL}/verification-service/documents/${docId}/status`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify(body),
         }
       );
@@ -245,31 +243,19 @@ export default function Verification() {
   return (
     <div
       className={`min-h-screen p-6 ${
-        status === "Online"
-          ? "bg-teal-100"
-          : status === "Busy"
-          ? "bg-yellow-100"
-          : "bg-gray-100"
+        status === "Online" ? "bg-teal-100" : status === "Busy" ? "bg-yellow-100" : "bg-gray-100"
       }`}
     >
       <h1 className="text-3xl font-bold mb-6">Driver Verification</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-10rem)]">
-        {/* Left Column: Pending Verifications */}
         <div className="lg:col-span-1 bg-white rounded-xl shadow-md flex flex-col border-2 border-teal-200">
           <h2 className="text-lg font-semibold p-4 border-b border-teal-100">
             Pending Verifications ({pagination.totalItems || 0})
           </h2>
           <div className="flex-1 overflow-y-auto p-2 space-y-2">
-            {loadingDrivers ? (
-              <DriverListSkeleton />
-            ) : driversError ? (
-              <div className="text-red-500 p-4">{driversError}</div>
-            ) : pendingDrivers.length === 0 ? (
-              <div className="text-center text-gray-500 p-8">
-                No pending verifications found.
-              </div>
-            ) : (
+            {loadingDrivers ? <DriverListSkeleton /> : driversError ? <div className="text-red-500 p-4">{driversError}</div> : pendingDrivers.length === 0 ? <div className="text-center text-gray-500 p-8">No pending verifications found.</div> : 
+              (
               pendingDrivers.map((driver) => (
                 <div
                   key={driver.driver_id}
@@ -290,17 +276,10 @@ export default function Verification() {
           </div>
         </div>
 
-        {/* Right Column: Details */}
         <div className="lg:col-span-2 bg-white rounded-xl shadow-md flex flex-col border-2 border-teal-200 p-4">
-          {!selectedDriver ? (
-            <div className="flex-1 flex items-center justify-center text-gray-400">
-              Select a driver from the list to view their documents.
-            </div>
-          ) : loadingDocuments ? (
-            <DetailsSkeleton />
-          ) : (
+          {!selectedDriver ? <div className="flex-1 flex items-center justify-center text-gray-400">Select a driver from the list to view their documents.</div> : loadingDocuments ? <DetailsSkeleton /> : 
+            (
             <>
-              {/* Driver Info */}
               <div className="bg-teal-50 rounded-lg p-4 mb-4 border border-teal-200">
                 <h3 className="text-xl font-bold text-teal-800">{selectedDriver.full_name}</h3>
                 <div className="grid grid-cols-2 gap-2 mt-2 text-sm">
@@ -311,38 +290,39 @@ export default function Verification() {
                 </div>
               </div>
 
-              {documentsError ? (
+              {documentsError ? 
                   <div className="flex-1 bg-gray-100 rounded-lg flex flex-col items-center justify-center text-center p-4">
                       <FileWarning size={48} className="text-yellow-500 mb-4" />
                       <h4 className="font-semibold text-lg text-gray-700">Could Not Load Documents</h4>
                       <p className="text-gray-500">{documentsError}</p>
                   </div>
-              ) : (
+               : 
+                (
                 <>
-                    {/* Document Viewer */}
-                    <div 
-                        ref={viewerRef}
-                        className="flex-1 bg-gray-100 rounded-lg flex items-center justify-center relative overflow-hidden mb-4 p-2 border border-gray-200"
-                        onMouseDown={handleMouseDown}
-                        onMouseMove={handleMouseMove}
-                        onMouseUp={handleMouseUpOrLeave}
-                        onMouseLeave={handleMouseUpOrLeave}
-                        style={{ cursor: zoomLevel > 1 ? 'grab' : 'default' }}
-                    >
+                    <div ref={imageContainerRef} className="flex-1 bg-gray-100 rounded-lg flex items-center justify-center relative overflow-hidden mb-4 p-2 border border-gray-200">
+                        {isImageLoading && <div className="absolute inset-0 bg-gray-200 animate-pulse z-10"></div>}
                         {selectedDocument && (
-                           <div className="w-full h-full flex items-center justify-center">
+                            <div 
+                                className="absolute inset-0 flex items-center justify-center"
+                                onMouseDown={handleMouseDown}
+                                onMouseMove={handleMouseMove}
+                                onMouseUp={handleMouseUpOrLeave}
+                                onMouseLeave={handleMouseUpOrLeave}
+                                style={{ cursor: zoomLevel > 1 ? 'grab' : 'default' }}
+                            >
                                 <img
                                     src={`${API_BASE_URL}/driver-service${selectedDocument.file_url}`}
                                     alt={`${selectedDocument.document_type}`}
-                                    className="max-w-full max-h-full transition-transform duration-100"
+                                    onLoad={() => setIsImageLoading(false)}
+                                    className={`max-w-none max-h-none transition-opacity duration-300 ${isImageLoading ? 'opacity-0' : 'opacity-100'}`}
                                     style={{ 
                                         transform: `scale(${zoomLevel}) translate(${translatePos.x}px, ${translatePos.y}px)`,
                                         pointerEvents: 'none'
                                     }}
                                 />
-                           </div>
+                            </div>
                         )}
-                        <div className="absolute top-2 right-2 flex gap-2">
+                        <div className="absolute top-2 right-2 flex gap-2 z-20">
                             <button onClick={() => setZoomLevel(z => z + 0.2)} className="bg-white rounded-full p-2 shadow"><ZoomIn size={18}/></button>
                             <button onClick={() => setZoomLevel(z => Math.max(1, z - 0.2))} className="bg-white rounded-full p-2 shadow"><ZoomOut size={18}/></button>
                         </div>
@@ -424,18 +404,8 @@ export default function Verification() {
             )}
 
             <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setShowRejectionModal(false)}
-                className="px-4 py-2 rounded-xl border hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleRejectSubmit}
-                className="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700"
-              >
-                Submit Rejection
-              </button>
+              <button onClick={() => setShowRejectionModal(false)} className="px-4 py-2 rounded-xl border hover:bg-gray-100">Cancel</button>
+              <button onClick={handleRejectSubmit} className="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700">Submit Rejection</button>
             </div>
           </div>
         </div>
