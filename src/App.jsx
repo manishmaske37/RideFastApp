@@ -6,13 +6,13 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
-import { OnlineProvider, useOnline } from "./context/OnlineContext";
+import { OnlineProvider } from "./context/OnlineContext";
 
 import "./App.css";
 import Login from "./Component/Login";
 import Sidebar from "./Component/Sidebar";
 import Dashboard from "./Component/Dashboard";
-import { ToastContainer } from "react-toastify"; 
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Analytics from "./Component/Analytics";
 import DailyReports from "./Component/DailyReports";
@@ -20,6 +20,7 @@ import UserManagement from "./Component/UserManagement";
 import RideManagement from "./Component/RideManagement";
 import HelpSupport from "./Component/HelpSupport";
 import LiveSupport from "./Component/LiveSupport";
+import Verification from "./Component/Verification"; // Imported the new Verification component
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -134,6 +135,19 @@ function App() {
                   <div className="ml-20">
                     {" "}
                     <HelpSupport />{" "}
+                  </div>
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+            />
+             {/* Added the new route for the Verification screen */}
+             <Route
+              path="/verification"
+              element={
+                isLoggedIn ? (
+                  <div className="ml-20">
+                    <Verification />
                   </div>
                 ) : (
                   <Navigate to="/" replace />

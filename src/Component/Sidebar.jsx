@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   LayoutGrid,
   Users,
@@ -6,12 +6,19 @@ import {
   BarChart2,
   PieChart,
   HelpCircle,
-  NotepadText
+  NotepadText, 
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
-const Sidebar = ({onAvatarClick}) => {
-  const [active, setActive] = useState("dashboard"); // default active
+const Sidebar = ({ onAvatarClick }) => {
+  const [active, setActive] = useState("dashboard");
+  const location = useLocation();
+
+  // Update active state based on the current URL path
+  useEffect(() => {
+    const currentPath = location.pathname.split("/")[1];
+    setActive(currentPath || "dashboard");
+  }, [location]);
 
   const menuItems = [
     {
@@ -27,19 +34,19 @@ const Sidebar = ({onAvatarClick}) => {
       link: "/users",
     },
     {
-      id: "cars",
+      id: "ride", // Changed from 'cars' to match the link
       label: "Rides",
       icon: Car,
       link: "/ride",
     },
     {
-      id: "bar",
+      id: "reports", // Changed from 'bar' to match the link
       label: "Reports",
       icon: BarChart2,
       link: "/reports",
     },
     {
-      id: "pie",
+      id: "analytics", // Changed from 'pie' to match the link
       label: "Analytics",
       icon: PieChart,
       link: "/analytics",
@@ -51,10 +58,10 @@ const Sidebar = ({onAvatarClick}) => {
       link: "/help",
     },
     {
-      id: "Verification",
+      id: "verification", // Added new menu item
       label: "Verification",
       icon: NotepadText,
-      link: "#",
+      link: "/verification",
     },
   ];
 
@@ -92,20 +99,20 @@ const Sidebar = ({onAvatarClick}) => {
 
       {/* Bottom Avatar */}
       <div className="mb-6">
-  <div 
-    onClick={onAvatarClick}
-    className="w-12 h-12 bg-teal-500 text-white flex items-center justify-center rounded-full font-bold text-lg cursor-pointer"
-  >
-    {(() => {
-      const fullName = localStorage.getItem("fullName") || "User";
-      const parts = fullName.trim().split(" ");
-      const initials = parts[0][0] + (parts[1] ? parts[1][0] : "");
-      return initials.toUpperCase();
-    })()}
-  </div>
-</div>
-
-      
+        <div
+          onClick={onAvatarClick}
+          className="w-12 h-12 bg-teal-500 text-white flex items-center justify-center rounded-full font-bold text-lg cursor-pointer"
+        >
+          {(() => {
+            const fullName = localStorage.getItem("fullName") || "User";
+            const parts = fullName.trim().split(" ");
+            if (parts.length > 1 && parts[1]) {
+              return (parts[0][0] + parts[1][0]).toUpperCase();
+            }
+            return parts[0].substring(0, 2).toUpperCase();
+          })()}
+        </div>
+      </div>
     </div>
   );
 };
