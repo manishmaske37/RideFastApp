@@ -74,10 +74,10 @@ export default function DailyReports() {
         <h1 className="text-3xl font-bold">Daily Reports</h1>
 
         {/* Calendar input */}
-        <div className="relative" ref={calendarRef}>
+        <div className="relative inline-block" ref={calendarRef}>
           <button
-            onClick={() => setShowCalendar(!showCalendar)}
-            className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm cursor-pointer"
+            onClick={() => setShowCalendar((prev) => !prev)}
+            className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm cursor-pointer hover:bg-gray-100"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -94,126 +94,50 @@ export default function DailyReports() {
               />
             </svg>
             <span className="text-gray-700 font-medium text-sm">
-              {selectedDate.toLocaleDateString()}
+              {format(selectedDate, "dd/MM/yyyy")}
             </span>
           </button>
 
-          {showCalendar && (
-            <div className="fixed inset-0 bg-teal-100 z-50">
+          {/* Popup Calendar */}
+           {showCalendar && (
+            <div
+              className="absolute z-50 top-full mt-3 right-0 bg-teal-50 border-2 border-green-300 rounded-2xl shadow-2xl p-4 w-auto"
+              ref={calendarRef}
+            >
               {/* Header */}
-              <div>
-                <div className="flex justify-between items-center p-4 relative top-1">
-                  <div className="flex items-center gap-4">
-                    {/* Close Button */}
-                    <button
-                      onClick={() => setShowCalendar(false)}
-                      className="text-gray-600 text-xl font-bold"
-                    >
-                      ✕
-                    </button>
-                  </div>
-
-                  {/* Save Button */}
-                  <button
-                    onClick={() => setShowCalendar(false)}
-                    className="text-gray-800 px-4 py-2 rounded hover:bg-gray-200"
-                  >
-                    Save
-                  </button>
-                </div>
-
-                {/* Label and Selected Date */}
-                <div className="pl-20 mb-5 text-2xl">
-                  <p className="text-gray-600 text-sm">Select date</p>
-                  <p className="text-gray-800 font-medium">
-                    {selectedDate
-                      ? format(selectedDate, "MMM d, yyyy")
-                      : "No date selected"}
-                  </p>
-                </div>
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-lg font-semibold text-gray-700">
+                  📅 Select Date
+                </h3>
+                <button
+                  onClick={() => setShowCalendar(false)}
+                  className="text-gray-500 text-xl font-bold hover:text-red-500"
+                >
+                  ✕
+                </button>
               </div>
 
-              {/* Content */}
-              <div className="h-120 flex flex-col justify-center items-center">
-                <div
-                  className="
-          transform 
-          scale-95      /* 📱 small mobile */
-          sm:scale-110  /* 📱 bigger mobile */
-          md:scale-125  /* 📱 tablet */
-          lg:scale-140  /* 💻 desktop */
-        "
+              {/* Calendar */}
+              <Calendar
+                onChange={(date) => setSelectedDate(date)}
+                value={selectedDate}
+                className="!bg-teal-50 rounded-lg shadow-inner"
+              />
+
+              {/* Footer */}
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  onClick={() => setShowCalendar(false)}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
                 >
-                  <Calendar
-                    onChange={(date) => {
-                      setSelectedDate(date);
-                    }}
-                    value={selectedDate}
-                    className="!bg-teal-100 rounded-lg custom-calendar"
-                    calendarType="gregory"
-                  />
-
-                  <style>
-                    {`
-    /* Month + year in single line */
-    .custom-calendar .react-calendar__navigation {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
-
-    /* Weekday names in single line */
-    .custom-calendar .react-calendar__month-view__weekdays {
-      display: flex;
-      justify-content: space-between;
-      text-align: center;
-      font-size: 0.75rem;
-      margin-bottom: 0.5rem;
-      color: gray;
-      text-decoration: none;
-    }
-    
-    /* Remove dotted underline and fix alignment */
-.custom-calendar .react-calendar__month-view__weekdays abbr {
-  text-decoration: none; /* remove underline */
-  cursor: default;
-  display: block;        /* ✅ fixes shifting */
-  text-align: center;    /* ✅ keeps text centered */
-}
-
-    /* Selected date background */
-    .custom-calendar .react-calendar__tile--active {
-      background: #0d9488 !important;
-      color: white !important;
-      border-radius: 50px; /* optional: rounded look */
-    }
-
-    /* Hover effect */
-    .custom-calendar .react-calendar__tile:hover {
-      background: #14b8a6; /* lighter teal on hover */
-      color: white;
-      border-radius: 50px;
-    }
-
-    /* Remove default border */
-.custom-calendar {
-  border: none !important;
-}
-  /* Also remove yellow when it's not active */
-.custom-calendar .react-calendar__tile--now:not(.react-calendar__tile--active) {
-  background: transparent !important;
-}
-
-/* Hover effect for all tiles including today */
-.custom-calendar .react-calendar__tile:hover {
-  background: #14b8a6 !important; /* lighter teal */
-  color: white !important;
-  border-radius: 50px;
-}
-  `}
-                  </style>
-                </div>
+                  Cancel
+                </button>
+                <button
+                  onClick={() => setShowCalendar(false)}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                >
+                  Save
+                </button>
               </div>
             </div>
           )}

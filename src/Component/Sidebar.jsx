@@ -7,11 +7,14 @@ import {
   PieChart,
   HelpCircle,
   NotepadText, 
+  Menu, //Hamburger icon
+  X, //close icon
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const Sidebar = ({ onAvatarClick }) => {
   const [active, setActive] = useState("dashboard");
+  const [isOpen, setIsOpen] = useState(false); //sidebar open state
   const location = useLocation();
 
   // Update active state based on the current URL path
@@ -66,9 +69,27 @@ const Sidebar = ({ onAvatarClick }) => {
   ];
 
   return (
-    <div className="!fixed !top-0 !bottom-0 !left-0 flex flex-col justify-between items-center h-screen w-20 bg-white shadow-lg border-r">
+    
+    <>
+      {/* Hamburger Button (Visible on mobile & tablet only) */}
+      <div className="lg:hidden fixed top-4 left-4 z-50">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="p-2 rounded-md bg-teal-500 text-white shadow-md"
+        >
+          {isOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
+
+      {/* sidebar */}
+      <div className={`fixed top-0 bottom-0 left-0 flex flex-col justify-between items-center h-screen w-20 bg-white shadow-lg border-r z-40 
+        transform transition-transform duration-300 
+        ${isOpen ? "translate-x-0" : "-translate-x-full"} 
+        lg:translate-x-0 lg:w-20 lg:flex lg:flex-col lg:justify-between lg:items-center`}   // always visible on large screens
+      >
+
       {/* Top Section */}
-      <div className="flex flex-col items-center gap-8 mt-6">
+      <div className="flex flex-col items-center gap-8 mt-10">
         {/* Menu Items */}
         <div className="flex flex-col gap-6 text-gray-500 items-center">
           {menuItems.map(({ id, icon: Icon, label, link }) => (
@@ -76,7 +97,10 @@ const Sidebar = ({ onAvatarClick }) => {
               {/* Icon button */}
               <Link
                 to={link}
-                onClick={() => setActive(id)}
+                onClick={() => {
+                  setActive(id);
+                  setIsOpen(false); // close sidebar on menu item click (mobile)
+                }}
                 className={`p-2 rounded-lg transition cursor-pointer ${
                   active === id
                     ? "bg-teal-100 text-teal-600"
@@ -98,7 +122,7 @@ const Sidebar = ({ onAvatarClick }) => {
       </div>
 
       {/* Bottom Avatar */}
-      <div className="mb-6">
+      <div className="mb-6 flex justify-center">
         <div
           onClick={onAvatarClick}
           className="w-12 h-12 bg-teal-500 text-white flex items-center justify-center rounded-full font-bold text-lg cursor-pointer"
@@ -114,6 +138,7 @@ const Sidebar = ({ onAvatarClick }) => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

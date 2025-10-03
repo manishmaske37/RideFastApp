@@ -16,7 +16,7 @@ import {
   RefreshCcw,
 } from "lucide-react";
 
-// --- Sub-components for better structure ---
+// --- Sub-components for better structure --- 
 
 const DriverListSkeleton = () => (
   <div className="space-y-2">

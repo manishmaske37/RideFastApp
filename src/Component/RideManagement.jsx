@@ -176,71 +176,47 @@ const RideManagement = () => {
           </button>
 
           {showCalendar && (
-            <div className="fixed inset-0 bg-teal-100 z-50">
+            <div
+              className="absolute z-50 top-full mt-3 right-0 bg-teal-50 border-2 border-green-300 rounded-2xl shadow-2xl p-4 w-auto"
+              ref={calendarRef}
+            >
               {/* Header */}
-              <div>
-                <div className="flex justify-between items-center p-4 relative top-1">
-                  <div className="flex items-center gap-4">
-                    {/* Close Button */}
-                    <button
-                      onClick={() => setShowCalendar(false)}
-                      className="text-gray-600 text-xl font-bold"
-                    >
-                      ✕
-                    </button>
-                  </div>
-
-                  {/* Save Button */}
-                  <button
-                    onClick={() => setShowCalendar(false)}
-                    className="text-gray-800 px-4 py-2 rounded hover:bg-gray-200"
-                  >
-                    Save
-                  </button>
-                </div>
-
-                {/* Label and Selected Range */}
-                <div className=" pl-20 mb-5 text-2xl">
-                  <p className="text-gray-600 text-sm">Select range</p>
-                  <p className="text-gray-800 font-medium">
-                    {dateRange.startDate && dateRange.endDate
-                      ? `${format(dateRange.startDate, "MMM d")} - ${format(
-                          dateRange.endDate,
-                          "MMM d"
-                        )}`
-                      : "No range selected"}
-                  </p>
-                </div>
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-lg font-semibold text-gray-700">
+                  📅 Select Range
+                </h3>
+                <button
+                  onClick={() => setShowCalendar(false)}
+                  className="text-gray-500 text-xl font-bold hover:text-red-500"
+                >
+                  ✕
+                </button>
               </div>
 
-              {/* Content */}
-              <div className="h-120 flex flex-col justify-center items-center">
-                <div
-                  className="
-      transform 
-      scale-95      /* 📱 small mobile */
-      sm:scale-110  /* 📱 bigger mobile */
-      md:scale-125  /* 📱 tablet */
-      lg:scale-140  /* 💻 desktop */"
-                >
-                  {/* Increase size */}
-                  <DateRange
-                    ranges={[dateRange]}
-                    onChange={(ranges) => setDateRange(ranges.selection)}
-                    moveRangeOnFirstSelection={false}
-                    rangeColors={["#0d9488"]}
-                    showDateDisplay={false}
-                    className="!bg-teal-100 rounded-lg"
-                  />
+              {/* Calendar */}
+              <DateRange
+                ranges={[dateRange]}
+                onChange={(ranges) => setDateRange(ranges.selection)}
+                moveRangeOnFirstSelection={false}
+                rangeColors={["#0d9488"]}
+                showDateDisplay={false}
+                className="!bg-teal-50 rounded-lg"
+              />
 
-                  <style>
-                    {`
-        .rdrNextPrevButton {
-          background-color: #CCFBF1;
-        }
-      `}
-                  </style>
-                </div>
+              {/* Footer Buttons */}
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  onClick={() => setShowCalendar(false)}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => setShowCalendar(false)}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                >
+                  Save
+                </button>
               </div>
             </div>
           )}
@@ -303,3 +279,4 @@ const RideManagement = () => {
 };
 
 export default RideManagement;
+
