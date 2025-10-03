@@ -19,7 +19,7 @@ import {
 
 import selectImg from "../assets/images/select.png";
 
-// --- Sub-components for better structure ---
+// --- Sub-components for better structure --- 
 
 const DriverListSkeleton = () => (
   <div className="space-y-2">

@@ -74,10 +74,10 @@ export default function DailyReports() {
         <h1 className="text-3xl font-bold">Daily Reports</h1>
 
         {/* Calendar input */}
-        <div className="relative" ref={calendarRef}>
+        <div className="relative inline-block" ref={calendarRef}>
           <button
-            onClick={() => setShowCalendar(!showCalendar)}
-            className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm cursor-pointer"
+            onClick={() => setShowCalendar((prev) => !prev)}
+            className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm cursor-pointer hover:bg-gray-100"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -94,7 +94,7 @@ export default function DailyReports() {
               />
             </svg>
             <span className="text-gray-700 font-medium text-sm">
-              {selectedDate.toLocaleDateString()}
+              {format(selectedDate, "dd/MM/yyyy")}
             </span>
           </button>
 

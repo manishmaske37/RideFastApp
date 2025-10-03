@@ -96,7 +96,7 @@ export default function Analytics() {
             </span>
           </button>
 
-          {/* FULLSCREEN CALENDAR POPUP */}
+           {/* Calendar Popup */}
           {showCalendar && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-50">
               <div className="bg-teal-100 rounded-lg shadow-lg p-6 w-150 h-auto">
