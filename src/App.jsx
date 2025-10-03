@@ -21,6 +21,7 @@ import RideManagement from "./Component/RideManagement";
 import HelpSupport from "./Component/HelpSupport";
 import LiveSupport from "./Component/LiveSupport";
 import Verification from "./Component/Verification"; // Imported the new Verification component
+import ProtectedRoute from "./Component/ProtectedRoute";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -81,9 +82,11 @@ function App() {
               path="/dashboard"
               element={
                 isLoggedIn ? (
-                  <div className="ml-20">
-                    <Dashboard />
-                  </div>
+                  <ProtectedRoute>
+                    <div className="ml-20">
+                      <Dashboard />
+                    </div>
+                  </ProtectedRoute>
                 ) : (
                   <Navigate to="/" replace />
                 )
@@ -141,8 +144,8 @@ function App() {
                 )
               }
             />
-             {/* Added the new route for the Verification screen */}
-             <Route
+            {/* Added the new route for the Verification screen */}
+            <Route
               path="/verification"
               element={
                 isLoggedIn ? (

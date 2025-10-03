@@ -99,62 +99,63 @@ export default function DailyReports() {
           </button>
 
           {showCalendar && (
-            <div className="fixed inset-0 bg-teal-100 z-50">
-              {/* Header */}
-              <div>
-                <div className="flex justify-between items-center p-4 relative top-1">
-                  <div className="flex items-center gap-4">
-                    {/* Close Button */}
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-50">
+              <div className="bg-teal-100 rounded-lg shadow-lg p-6 w-150 h-auto">
+                {/* Header */}
+                <div>
+                  <div className="flex justify-between items-center relative top-1">
+                    <div className="flex items-center gap-4">
+                      {/* Close Button */}
+                      <button
+                        onClick={() => setShowCalendar(false)}
+                        className="text-gray-600 text-xl font-bold"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    {/* Save Button */}
                     <button
                       onClick={() => setShowCalendar(false)}
-                      className="text-gray-600 text-xl font-bold"
+                      className="text-gray-800 px-4 py-2 rounded hover:bg-gray-200 cursor-pointer"
                     >
-                      ✕
+                      Save
                     </button>
                   </div>
 
-                  {/* Save Button */}
-                  <button
-                    onClick={() => setShowCalendar(false)}
-                    className="text-gray-800 px-4 py-2 rounded hover:bg-gray-200"
-                  >
-                    Save
-                  </button>
+                  {/* Label and Selected Date */}
+                  <div className="mt-5 text-2xl">
+                    <p className="text-gray-600 text-sm">Select date</p>
+                    <p className="text-gray-800 font-medium text-lg">
+                      {selectedDate
+                        ? format(selectedDate, "MMM d, yyyy")
+                        : "No date selected"}
+                    </p>
+                  </div>
                 </div>
 
-                {/* Label and Selected Date */}
-                <div className="pl-20 mb-5 text-2xl">
-                  <p className="text-gray-600 text-sm">Select date</p>
-                  <p className="text-gray-800 font-medium">
-                    {selectedDate
-                      ? format(selectedDate, "MMM d, yyyy")
-                      : "No date selected"}
-                  </p>
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="h-120 flex flex-col justify-center items-center">
-                <div
-                  className="
+                {/* Content */}
+                <div className="h-120 flex flex-col justify-center items-center">
+                  <div
+                    className="
           transform 
-          scale-95      /* 📱 small mobile */
-          sm:scale-110  /* 📱 bigger mobile */
-          md:scale-125  /* 📱 tablet */
-          lg:scale-140  /* 💻 desktop */
+          scale-120      /* 📱 small mobile */
+          sm:scale-100  /* 📱 bigger mobile */
+          md:scale-115  /* 📱 tablet */
+          lg:scale-130  /* 💻 desktop */
         "
-                >
-                  <Calendar
-                    onChange={(date) => {
-                      setSelectedDate(date);
-                    }}
-                    value={selectedDate}
-                    className="!bg-teal-100 rounded-lg custom-calendar"
-                    calendarType="gregory"
-                  />
+                  >
+                    <Calendar
+                      onChange={(date) => {
+                        setSelectedDate(date);
+                      }}
+                      value={selectedDate}
+                      className="!bg-teal-100 rounded-lg custom-calendar"
+                      calendarType="gregory"
+                    />
 
-                  <style>
-                    {`
+                    <style>
+                      {`
     /* Month + year in single line */
     .custom-calendar .react-calendar__navigation {
       display: flex;
@@ -212,7 +213,8 @@ export default function DailyReports() {
   border-radius: 50px;
 }
   `}
-                  </style>
+                    </style>
+                  </div>
                 </div>
               </div>
             </div>

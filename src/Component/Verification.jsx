@@ -16,6 +16,9 @@ import {
   RefreshCcw,
 } from "lucide-react";
 
+
+import selectImg from "../assets/images/select.png";
+
 // --- Sub-components for better structure ---
 
 const DriverListSkeleton = () => (
@@ -318,7 +321,18 @@ export default function Verification() {
         <div className="lg:col-span-2 bg-white rounded-xl shadow-md flex flex-col border-2 border-teal-200 p-4">
           {!selectedDriver ? (
             <div className="flex-1 flex items-center justify-center text-gray-400">
-              Select a driver from the list to view their documents.
+              <div className="flex flex-col items-center justify-center mt-10">
+                <p className="text-lg font-semibold mb-4">
+                  Select a driver from the list to view their documents.
+                </p>
+                <img
+                  src={selectImg}
+                  alt="Select a driver"
+                  width={322}
+                  height={486}
+                  className="rounded-lg shadow-md"
+                />
+              </div>
             </div>
           ) : loadingDocuments ? (
             <DetailsSkeleton />

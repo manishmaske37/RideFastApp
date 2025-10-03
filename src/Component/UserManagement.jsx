@@ -175,7 +175,7 @@ const UserManagement = () => {
                     </div>
                   </div>
 
-                  <span className="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-700">
+                  <span className="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700">
                     Since{" "}
                     {user.registration_date
                       ? format(new Date(user.registration_date), "dd MMM yyyy")

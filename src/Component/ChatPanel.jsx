@@ -153,11 +153,11 @@ const ChatPanel = () => {
                 <div className="p-4 sm:p-6 text-gray-500 text-center h-62">
                   Conversation history goes here.
                 </div>
-                <div className="border-t p-2 sm:p-4 flex items-center gap-2">
+                <div className="border-t border-gray-300 p-2 sm:p-4 flex items-center gap-2">
                   <input
                     type="text"
                     placeholder="Type your reply here..."
-                    className="flex-1 border rounded-lg px-2 sm:px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400 h-12 sm:h-14"
+                    className="flex-1 border border-gray-300 rounded-lg px-2 sm:px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400 h-12 sm:h-14"
                   />
                   <button className="bg-teal-500 text-white px-4 py-2 rounded-lg shadow hover:bg-teal-600 h-12 sm:h-14 text-xl sm:text-2xl">
                     ➤

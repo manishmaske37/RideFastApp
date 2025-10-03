@@ -176,33 +176,28 @@ const RideManagement = () => {
           </button>
 
           {showCalendar && (
-            <div className="fixed inset-0 bg-teal-100 z-50">
-              {/* Header */}
-              <div>
-                <div className="flex justify-between items-center p-4 relative top-1">
-                  <div className="flex items-center gap-4">
-                    {/* Close Button */}
-                    <button
-                      onClick={() => setShowCalendar(false)}
-                      className="text-gray-600 text-xl font-bold"
-                    >
-                      ✕
-                    </button>
-                  </div>
-
-                  {/* Save Button */}
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-50">
+              <div className="bg-teal-100 rounded-lg shadow-lg p-6 w-150 h-150">
+                {/* Header */}
+                <div className="flex justify-between items-center mb-4">
                   <button
                     onClick={() => setShowCalendar(false)}
-                    className="text-gray-800 px-4 py-2 rounded hover:bg-gray-200"
+                    className="text-gray-600 text-xl font-bold"
+                  >
+                    ✕
+                  </button>
+                  <button
+                    onClick={() => setShowCalendar(false)}
+                    className="text-gray-800 px-4 py-2 rounded hover:bg-gray-200 cursor-pointer "
                   >
                     Save
                   </button>
                 </div>
 
                 {/* Label and Selected Range */}
-                <div className=" pl-20 mb-5 text-2xl">
+                <div className="mb-5">
                   <p className="text-gray-600 text-sm">Select range</p>
-                  <p className="text-gray-800 font-medium">
+                  <p className="text-gray-800 font-medium text-lg">
                     {dateRange.startDate && dateRange.endDate
                       ? `${format(dateRange.startDate, "MMM d")} - ${format(
                           dateRange.endDate,
@@ -211,35 +206,23 @@ const RideManagement = () => {
                       : "No range selected"}
                   </p>
                 </div>
-              </div>
 
-              {/* Content */}
-              <div className="h-120 flex flex-col justify-center items-center">
-                <div
-                  className="
-      transform 
-      scale-95      /* 📱 small mobile */
-      sm:scale-110  /* 📱 bigger mobile */
-      md:scale-125  /* 📱 tablet */
-      lg:scale-140  /* 💻 desktop */"
-                >
-                  {/* Increase size */}
+                {/* Date Range Picker */}
+                <div className="
+                flex justify-center pt-12 
+                transform 
+                sm:scale-70 /* 📱 bigger mobile */ 
+                md:scale-85 /* 📱 tablet */ 
+                lg:scale-150 /* 💻 desktop */">
                   <DateRange
                     ranges={[dateRange]}
                     onChange={(ranges) => setDateRange(ranges.selection)}
                     moveRangeOnFirstSelection={false}
                     rangeColors={["#0d9488"]}
                     showDateDisplay={false}
-                    className="!bg-teal-100 rounded-lg"
+                    className="!bg-teal-100 rounded-lg "
                   />
-
-                  <style>
-                    {`
-        .rdrNextPrevButton {
-          background-color: #CCFBF1;
-        }
-      `}
-                  </style>
+                  <style> {` .rdrNextPrevButton { background-color: #CCFBF1; } `} </style>
                 </div>
               </div>
             </div>
