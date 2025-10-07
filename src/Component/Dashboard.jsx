@@ -254,7 +254,27 @@ const Dashboard = () => {
         if (!response.ok) throw new Error("Failed to fetch workload");
 
         const result = await response.json();
-        setWorkload(result.data);
+
+        const tickets = result?.data?.workload?.recentTickets || [];
+
+        const mappedWorkload = {
+          current: tickets[0]
+            ? {
+                name: tickets[0].customerName || "N/A",
+                issue: tickets[0].subject || "N/A",
+                status: tickets[0].status || "N/A",
+              }
+            : null,
+          next: tickets[1]
+            ? {
+                name: tickets[1].customerName || "N/A",
+                issue: tickets[1].subject || "N/A",
+                status: tickets[1].status || "N/A",
+              }
+            : null,
+        };
+
+        setWorkload(mappedWorkload);
       } catch (error) {
         console.error("Error fetching workload:", error);
       }
@@ -440,71 +460,42 @@ const Dashboard = () => {
             <p className="text-gray-500 text-sm">Loading workload...</p>
           ) : (
             <>
-              {/* Agent Summary */}
+              {/* Current */}
               <div className="bg-white rounded-lg p-4 shadow mb-4 border-2 border-green-300">
-                <h3 className="text-teal-600 font-bold text-sm sm:text-base mb-2">
-                  Agent Status
+                <h3 className="text-teal-600 font-bold text-sm sm:text-base">
+                  Currently Resolving
                 </h3>
-                <p className="text-gray-700 text-sm">
-                  Status:{" "}
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                      workload.agentStatus?.status === "busy"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : workload.agentStatus?.status === "available"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-100 text-gray-700"
-                    }`}
-                  >
-                    {workload.agentStatus?.status || "N/A"}
-                  </span>
+                <hr className="my-2 text-gray-300" />
+                <p className="mt-2 font-medium">
+                  {workload.current?.name || "N/A"}
                 </p>
                 <p className="text-gray-600 text-sm">
-                  Active Tickets:{" "}
-                  {workload.agentStatus?.activeTicketsCount ?? 0}
+                  {workload.current?.issue || "No issue assigned"}
                 </p>
+                <div className="mt-2">
+                  <span className="text-blue-600 text-xs sm:text-sm font-semibold bg-blue-200 px-2 py-1 rounded-full">
+                    {workload.current?.status || "N/A"}
+                  </span>
+                </div>
               </div>
 
-              {/* Recent Tickets List */}
+              {/* Next */}
               <div className="bg-white rounded-lg p-4 shadow border-2 border-green-300">
-                <h3 className="text-gray-700 font-bold text-sm sm:text-base mb-2">
-                  Recent Tickets
+                <h3 className="text-gray-700 font-bold text-sm sm:text-base">
+                  Next in Queue
                 </h3>
-                <hr className="mb-3 text-gray-300" />
-                {workload.workload?.recentTickets?.length > 0 ? (
-                  <ul className="space-y-3">
-                    {workload.workload.recentTickets.map((ticket) => (
-                      <li
-                        key={ticket.id}
-                        className="p-3 border rounded-lg bg-gray-50 flex justify-between items-center hover:bg-gray-100 transition"
-                      >
-                        <div>
-                          <p className="font-semibold text-gray-800">
-                            {ticket.customerName}
-                          </p>
-                          <p className="text-gray-600 text-sm">
-                            {ticket.subject}
-                          </p>
-                        </div>
-                        <span
-                          className={`text-xs sm:text-sm font-medium px-3 py-1 rounded-full ${
-                            ticket.status === "in_progress"
-                              ? "bg-yellow-100 text-yellow-700"
-                              : ticket.status === "resolved"
-                              ? "bg-green-100 text-green-700"
-                              : "bg-gray-100 text-gray-700"
-                          }`}
-                        >
-                          {ticket.status}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-gray-500 text-sm">
-                    No recent tickets available.
-                  </p>
-                )}
+                <hr className="my-2 text-gray-300" />
+                <p className="mt-2 font-medium">
+                  {workload.next?.name || "N/A"}
+                </p>
+                <p className="text-gray-600 text-sm">
+                  {workload.next?.issue || "No next ticket"}
+                </p>
+                <div className="mt-2">
+                  <span className="text-orange-500 text-xs sm:text-sm font-semibold bg-orange-200 px-2 py-1 rounded-full">
+                    {workload.next?.status || "N/A"}
+                  </span>
+                </div>
               </div>
             </>
           )}
