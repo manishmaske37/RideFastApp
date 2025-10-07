@@ -15,27 +15,6 @@ import SkeletonBox from "./SkeletonBox";
 import { useOnline } from "../context/OnlineContext";
 import Swal from "sweetalert2";
 
-// JSON data
-const other = {
-  workload: {
-    current: {
-      name: "Aman Gupta",
-      issue: "Customer No-Show Dispute",
-      status: "Open",
-    },
-    next: {
-      name: "Vikram Singh",
-      issue: "Lost item in cab",
-      status: "Pending",
-    },
-  },
-  ticket: {
-    title: "Customer No-Show Dispute",
-    ticketId: "T-48329",
-    tabs: ["Conversation", "Ride Details", "User Info"],
-  },
-};
-
 import { API_BASE_URL } from "../config/api";
 
 const Dashboard = () => {
@@ -46,6 +25,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   const [dashboardData, setDashboardData] = useState({ stats: [] });
+  const [workload, setWorkload] = useState(null); // workload data from API
 
   const statuses = ["Online", "Busy", "Offline"];
 
@@ -68,7 +48,7 @@ const Dashboard = () => {
           body: JSON.stringify({ status: newStatus.toLowerCase() }),
         }
       );
-      
+
       const data = await response.json();
 
       if (response.ok && data.success) {
@@ -123,14 +103,15 @@ const Dashboard = () => {
         const token = localStorage.getItem("accessToken");
 
         const response = await fetch(
-          `${API_BASE_URL}/support-service/dashboard/overview`, 
+          `${API_BASE_URL}/support-service/dashboard/overview`,
           {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         // 🔹 If token is expired → force logout
         if (response.status === 401) {
@@ -240,6 +221,47 @@ const Dashboard = () => {
     const interval = setInterval(fetchDashboardData, 10000);
 
     // Cleanup when component unmounts
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fetch agent workload
+  useEffect(() => {
+    const fetchWorkload = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        const response = await fetch(
+          `${API_BASE_URL}/support-service/agent/workload`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.status == 401) {
+          const data = await response.json().catch(() => ({}));
+          if (data?.message?.includes("expired")) {
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("fullName");
+            localStorage.removeItem("email");
+            window.location.href = "/";
+            return;
+          }
+        }
+
+        if (!response.ok) throw new Error("Failed to fetch workload");
+
+        const result = await response.json();
+        setWorkload(result.data);
+      } catch (error) {
+        console.error("Error fetching workload:", error);
+      }
+    };
+
+    fetchWorkload();
+    const interval = setInterval(fetchWorkload, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -414,38 +436,78 @@ const Dashboard = () => {
             </div>
           )}
 
-          {/* Current */}
-          <div className="bg-white rounded-lg p-4 shadow mb-4 border-2 border-green-300">
-            <h3 className="text-teal-600 font-bold text-sm sm:text-base">
-              Currently Resolving
-            </h3>
-            <hr className="my-2 text-gray-300" />
-            <p className="mt-2 font-medium">{other.workload.current.name}</p>
-            <p className="text-gray-600 text-sm">
-              {other.workload.current.issue}
-            </p>
+          {!workload ? (
+            <p className="text-gray-500 text-sm">Loading workload...</p>
+          ) : (
+            <>
+              {/* Agent Summary */}
+              <div className="bg-white rounded-lg p-4 shadow mb-4 border-2 border-green-300">
+                <h3 className="text-teal-600 font-bold text-sm sm:text-base mb-2">
+                  Agent Status
+                </h3>
+                <p className="text-gray-700 text-sm">
+                  Status:{" "}
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      workload.agentStatus?.status === "busy"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : workload.agentStatus?.status === "available"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    {workload.agentStatus?.status || "N/A"}
+                  </span>
+                </p>
+                <p className="text-gray-600 text-sm">
+                  Active Tickets:{" "}
+                  {workload.agentStatus?.activeTicketsCount ?? 0}
+                </p>
+              </div>
 
-            <div className="mt-2">
-              <span className="text-blue-600 text-xs sm:text-sm font-semibold bg-blue-200 px-2 py-1 rounded-full">
-                {other.workload.current.status}
-              </span>
-            </div>
-          </div>
-
-          {/* Next */}
-          <div className="bg-white rounded-lg p-4 shadow border-2 border-green-300">
-            <h3 className="text-gray-700 font-bold text-sm sm:text-base">
-              Next in Queue
-            </h3>
-            <hr className="my-2 text-gray-300" />
-            <p className="mt-2 font-medium">{other.workload.next.name}</p>
-            <p className="text-gray-600 text-sm">{other.workload.next.issue}</p>
-            <div className="mt-2">
-              <span className="text-orange-500 text-xs sm:text-sm font-semibold bg-orange-200 px-2 py-1 rounded-full">
-                {other.workload.next.status}
-              </span>
-            </div>
-          </div>
+              {/* Recent Tickets List */}
+              <div className="bg-white rounded-lg p-4 shadow border-2 border-green-300">
+                <h3 className="text-gray-700 font-bold text-sm sm:text-base mb-2">
+                  Recent Tickets
+                </h3>
+                <hr className="mb-3 text-gray-300" />
+                {workload.workload?.recentTickets?.length > 0 ? (
+                  <ul className="space-y-3">
+                    {workload.workload.recentTickets.map((ticket) => (
+                      <li
+                        key={ticket.id}
+                        className="p-3 border rounded-lg bg-gray-50 flex justify-between items-center hover:bg-gray-100 transition"
+                      >
+                        <div>
+                          <p className="font-semibold text-gray-800">
+                            {ticket.customerName}
+                          </p>
+                          <p className="text-gray-600 text-sm">
+                            {ticket.subject}
+                          </p>
+                        </div>
+                        <span
+                          className={`text-xs sm:text-sm font-medium px-3 py-1 rounded-full ${
+                            ticket.status === "in_progress"
+                              ? "bg-yellow-100 text-yellow-700"
+                              : ticket.status === "resolved"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-gray-100 text-gray-700"
+                          }`}
+                        >
+                          {ticket.status}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-gray-500 text-sm">
+                    No recent tickets available.
+                  </p>
+                )}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Chat Panel */}
